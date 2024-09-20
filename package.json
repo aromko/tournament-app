@@ -1,0 +1,35 @@
+{
+  "name": "<template-name>",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lint": "next lint",
+    "lint:fix": "pnpm lint --fix",
+    "format": "prettier --write \"**/*\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "packageManager": "pnpm@9.7.0",
+  "dependencies": {
+    "react": "19.0.0-rc-fb9a90fa48-20240614",
+    "react-dom": "19.0.0-rc-fb9a90fa48-20240614"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/node": "^22.3.0",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.35.0",
+    "globals": "^15.9.0",
+    "postcss": "^8",
+    "prettier": "3.3.3",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5",
+    "typescript-eslint": "^8.1.0"
+  },
+  "engines": {
+    "node": ">=10",
+    "pnpm": ">=3"
+  }
+}
