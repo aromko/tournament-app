@@ -1,6 +1,6 @@
 name: Typecheck
 
-on: ['push']
+on: ["push"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,8 +19,8 @@ jobs:
       - name: Setup Node (using .node-version)
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.node-version'
-          cache: 'pnpm'
+          node-version-file: ".node-version"
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
       - name: Build to generate routes

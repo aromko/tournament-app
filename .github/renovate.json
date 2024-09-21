@@ -4,63 +4,39 @@
     ":semanticCommitTypeAll(chore)",
     ":rebaseStalePrs"
   ],
-  "schedule": [
-    "before 3am on the first day of the month"
-  ],
+  "schedule": ["before 3am on the first day of the month"],
   "packageRules": [
     {
-      "matchDatasources": [
-        "npm"
-      ],
+      "matchDatasources": ["npm"],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchPackagePatterns": [
-        "eslint"
-      ],
+      "matchPackagePatterns": ["eslint"],
       "groupName": "eslint"
     },
     {
-      "matchPackagePatterns": [
-        "jest",
-        "testing-library",
-        "swc"
-      ],
+      "matchPackagePatterns": ["jest", "testing-library", "swc"],
       "groupName": "testing"
     },
     {
-      "matchPackagePatterns": [
-        "postcss",
-        "tailwind"
-      ],
+      "matchPackagePatterns": ["postcss", "tailwind"],
       "groupName": "tailwind"
     },
     {
       "groupName": "react monorepo",
-      "matchPackageNames": [
-        "@types/react",
-        "@types/react-dom"
-      ]
+      "matchPackageNames": ["@types/react", "@types/react-dom"]
     },
     {
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch",
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ]
+      "matchPackagePatterns": ["*"],
+      "matchUpdateTypes": ["minor", "patch"]
     },
     {
       "packageRules": [
         {
           "description": "Automerge non-major updates",
-          "matchUpdateTypes": [
-            "minor",
-            "patch"
-          ],
+          "matchUpdateTypes": ["minor", "patch"],
           "matchCurrentVersion": "!/^0/",
           "automerge": true
         }

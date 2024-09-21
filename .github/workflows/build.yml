@@ -2,10 +2,10 @@ name: Builds
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - '.changeset/**'
-      - '.github/**'
+      - ".changeset/**"
+      - ".github/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,8 +25,8 @@ jobs:
       - name: Setup Node (using .node-version)
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.node-version'
-          cache: 'pnpm'
+          node-version-file: ".node-version"
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
       # Action

@@ -1,9 +1,9 @@
-'type:feature':
+"type:feature":
   - changed-files:
       - any-glob-to-any-file: src/*
       - any-glob-to-any-file: src/**/*
 
-'type:infrastructure':
+"type:infrastructure":
   - changed-files:
       - any-glob-to-any-file: .github/*
       - any-glob-to-any-file: .github/**/*
