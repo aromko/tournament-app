@@ -132,3 +132,4 @@ dist
 
 #JetBrains
 .idea
+/next-env.d.ts

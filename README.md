@@ -1,8 +1,4 @@
 # Todos
-* `git config --local user.email "aromkoapp@gmail.com"`
-* `git config --local user.name "aromko"`
-* change name in package.json
-* setup your preferred framework (e.g. nextJs, vite etc.)
 * check react and next version e.g. `pnpm up -iLr`
 * App Icon
 * add actions on save e.g. webstorm
