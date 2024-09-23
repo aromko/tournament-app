@@ -4,6 +4,11 @@ import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
 import theme from "@/theme";
 import { CssBaseline } from "@mui/material";
 import "./../../index.css";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Tournament App",
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
