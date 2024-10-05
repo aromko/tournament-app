@@ -18,6 +18,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.1",
     "@mui/material-nextjs": "^6.1.1",
+    "@prisma/client": "5.20.0",
     "autoprefixer": "^10.4.20",
     "babel-plugin-react-compiler": "0.0.0-experimental-6067d4e-20240919",
     "next": "15.0.0-rc.0",
@@ -35,8 +36,10 @@
     "globals": "^15.10.0",
     "postcss": "^8",
     "prettier": "3.3.3",
+    "prisma": "^5.20.0",
     "tailwindcss": "^3.4.13",
-    "typescript": "^5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
     "typescript-eslint": "^8.8.0"
   },
   "engines": {

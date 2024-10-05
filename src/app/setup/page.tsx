@@ -18,7 +18,7 @@ interface SetupProps {
   groupNumber: number;
 }
 
-export default function Page() {
+export default function SetupPage() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -65,19 +65,19 @@ export default function Page() {
           >
             <RadioGroup
               aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="multi"
+              defaultValue="MULTI"
               name="elimination-type"
             >
               <FormLabel id="demo-radio-buttons-group-label">
                 Choose elimination type
               </FormLabel>
               <FormControlLabel
-                value="multi"
+                value="MULTI"
                 control={<Radio />}
                 label="Multi-Level"
               />
               <FormControlLabel
-                value="single"
+                value="SINGLE"
                 control={<Radio />}
                 label="Single"
               />
