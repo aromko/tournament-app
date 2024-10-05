@@ -1,11 +1,11 @@
 ##https://github.com/changesets/action?tab=readme-ov-file#without-publishing
-#name: Release
-#
-#on:
-#  push:
-#    branches:
-#      - main
-#
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
 #concurrency: ${{ github.workflow }}-${{ github.ref }}
 #
 #jobs:
