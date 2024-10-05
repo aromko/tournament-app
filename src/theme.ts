@@ -15,7 +15,11 @@ const theme = createTheme({
     },
     text: {
       primary: "#dfe0e2",
-      secondary: "#323a49",
+      secondary: "#4e5d73",
+    },
+    background: {
+      default: "#1f2632",
+      paper: "#4e5d73",
     },
   },
 });
