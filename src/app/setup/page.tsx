@@ -9,7 +9,7 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { FormEvent } from "react";
+import { createTournament } from "@/app/setup/action";
 
 interface SetupProps {
   name: string | undefined;
@@ -19,7 +19,9 @@ interface SetupProps {
 }
 
 export default function SetupPage() {
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  /*const router = useRouter();
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const formValues: SetupProps = {
@@ -28,11 +30,16 @@ export default function SetupPage() {
       eliminationType: formData.get("elimination-type")?.toString(),
       groupNumber: parseInt(formData.get("group-number") as string),
     };
-  };
+    const response = await fetch("/setup/api", {
+      method: "POST",
+      body: JSON.stringify(formValues),
+    });
+    //router.push("/setup/player", { query: formValues });
+  };*/
   return (
     <div className="flex min-h-screen flex-col items-center justify-center space-y-5">
       <h1>Start setup the tournament.</h1>
-      <form onSubmit={handleSubmit}>
+      <form action={createTournament}>
         <Stack
           direction={{ xs: "column", sm: "column" }}
           spacing={{ xs: 1, sm: 2, md: 4 }}
