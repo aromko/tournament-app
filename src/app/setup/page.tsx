@@ -10,36 +10,15 @@ import {
   TextField,
 } from "@mui/material";
 import { createTournament } from "@/app/setup/action";
-
-interface SetupProps {
-  name: string | undefined;
-  players: number | null;
-  eliminationType: string | undefined;
-  groupNumber: number;
-}
+import React, { useActionState } from "react";
 
 export default function SetupPage() {
-  /*const router = useRouter();
+  const [state, formAction, isPending] = useActionState(createTournament, null);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const formValues: SetupProps = {
-      name: formData.get("name")?.toString(),
-      players: parseInt(formData.get("players") as string),
-      eliminationType: formData.get("elimination-type")?.toString(),
-      groupNumber: parseInt(formData.get("group-number") as string),
-    };
-    const response = await fetch("/setup/api", {
-      method: "POST",
-      body: JSON.stringify(formValues),
-    });
-    //router.push("/setup/player", { query: formValues });
-  };*/
   return (
     <div className="flex min-h-screen flex-col items-center justify-center space-y-5">
       <h1>Start setup the tournament.</h1>
-      <form action={createTournament}>
+      <form action={formAction}>
         <Stack
           direction={{ xs: "column", sm: "column" }}
           spacing={{ xs: 1, sm: 2, md: 4 }}
@@ -107,12 +86,18 @@ export default function SetupPage() {
             spacing={{ xs: 1, sm: 2, md: 4 }}
             alignItems="flex-end"
           >
-            <Button type="submit" variant="contained" color="primary">
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              aria-disabled={isPending}
+            >
               Continue
             </Button>
           </Stack>
         </Stack>
       </form>
+      <p>{state?.message}</p>
     </div>
   );
 }
