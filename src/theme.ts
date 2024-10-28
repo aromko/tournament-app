@@ -15,11 +15,22 @@ const theme = createTheme({
     },
     text: {
       primary: "#dfe0e2",
-      secondary: "#4e5d73",
+      secondary: "#fff",
     },
     background: {
       default: "#1f2632",
       paper: "#4e5d73",
+    },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "& fieldset": {
+            borderColor: "#fff", // Default color
+          },
+        },
+      },
     },
   },
 });

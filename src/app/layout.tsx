@@ -21,7 +21,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <ThemeProvider theme={theme}>
                   {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
                   <CssBaseline />
-                  <main>{children}</main>
+                  <main>
+                    <div className="flex min-h-screen flex-col items-center justify-center space-y-5">
+                      {children}
+                    </div>
+                  </main>
                 </ThemeProvider>
               </StyledEngineProvider>
             </AppRouterCacheProvider>

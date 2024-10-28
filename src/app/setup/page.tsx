@@ -16,7 +16,7 @@ export default function SetupPage() {
   const [state, formAction, isPending] = useActionState(createTournament, null);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center space-y-5">
+    <div>
       <h1>Start setup the tournament.</h1>
       <form action={formAction}>
         <Stack
