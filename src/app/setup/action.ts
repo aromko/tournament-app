@@ -23,8 +23,9 @@ export async function createTournament(
     numberOfGroups: parseInt(formData.get("group-number") as string),
   };
 
+  let tournamentId = null;
   try {
-    await prisma!.tournament.create({
+    const tournament = await prisma!.tournament.create({
       data: {
         name: rawFormData.name,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -33,11 +34,12 @@ export async function createTournament(
         numberOfGroups: rawFormData.numberOfGroups,
       },
     });
+    tournamentId = tournament.id;
   } catch (e) {
     return {
       message: `Failed to create tournament: ${e}`,
     };
   }
 
-  redirect(`/setup/player?players=${rawFormData.players}`);
+  redirect(`/setup/player/${tournamentId}?p=${rawFormData.players}`);
 }

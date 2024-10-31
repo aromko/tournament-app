@@ -1,14 +1,17 @@
-import Player from "@/app/setup/player/Player";
+import Player from "@/app/setup/player/[id]/Player";
 import Grid from "@mui/material/Grid2";
 import React from "react";
 import { Button, Stack } from "@mui/material";
 
 export default async function PlayerPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ id: string }>;
   searchParams: Promise<{ [key: string]: string }>;
 }) {
-  const playersParam = (await searchParams).players;
+  const tournamentId = (await params).id;
+  const playersParam = (await searchParams).p;
 
   const renderPlayerComponent = Array.from({ length: parseInt(playersParam) });
 
@@ -27,7 +30,7 @@ export default async function PlayerPage({
             columnSpacing={1}
           >
             {renderPlayerComponent.map((_, index) => (
-              <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
+              <Grid key={crypto.randomUUID()} size={{ xs: 2, sm: 4, md: 4 }}>
                 <Player index={index} />
               </Grid>
             ))}
