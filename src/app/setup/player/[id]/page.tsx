@@ -1,18 +1,16 @@
+"use client";
+
 import Player from "@/app/setup/player/[id]/Player";
 import Grid from "@mui/material/Grid2";
-import React from "react";
+import React, { useActionState } from "react";
 import { Button, Stack } from "@mui/material";
 import NotFound from "@/app/not-found";
+import { createTournamentPlayers } from "@/app/setup/action";
+import { useParams, useSearchParams } from "next/navigation";
 
-export default async function PlayerPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string }>;
-}) {
-  const tournamentId = (await params).id;
-  const playersParam = (await searchParams).p;
+export default function PlayerPage() {
+  const tournamentId = useParams().id;
+  const playersParam = useSearchParams().get("p");
 
   if (!playersParam) {
     return <NotFound />;
@@ -20,10 +18,15 @@ export default async function PlayerPage({
 
   const renderPlayerComponent = Array.from({ length: parseInt(playersParam) });
 
+  const [state, formAction, isPending] = useActionState(
+    createTournamentPlayers,
+    { tournamentId },
+  );
+
   return (
     <div className="mx-96">
       <h1>Please enter player names</h1>
-      <form>
+      <form action={formAction}>
         <Stack
           direction={{ xs: "column", sm: "column" }}
           spacing={{ xs: 1, sm: 2, md: 4 }}
@@ -45,12 +48,21 @@ export default async function PlayerPage({
             spacing={{ xs: 1, sm: 2, md: 4 }}
             alignItems="flex-end"
           >
-            <Button type="submit" variant="contained" color="primary">
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              aria-disabled={isPending}
+            >
               Continue
             </Button>
           </Stack>
         </Stack>
       </form>
+      <p>
+        {tournamentId}
+        {state?.message}
+      </p>
     </div>
   );
 }

@@ -43,3 +43,29 @@ export async function createTournament(
 
   redirect(`/setup/player/${tournamentId}?p=${rawFormData.players}`);
 }
+
+export async function createTournamentPlayers(
+  currentState: { tournamentId: string },
+  formData: FormData,
+) {
+  const playerData = Object.fromEntries(
+    Array.from(formData.entries()).filter(([key]) => key.startsWith("player_")),
+  );
+
+  console.log(playerData);
+
+  try {
+    for (const name of Object.values(playerData)) {
+      await prisma!.player.create({
+        data: {
+          name: name as string,
+          tournamentId: parseInt(currentState.tournamentId),
+        },
+      });
+    }
+  } catch (e) {
+    return {
+      message: `Failed to create player: ${e}`,
+    };
+  }
+}
