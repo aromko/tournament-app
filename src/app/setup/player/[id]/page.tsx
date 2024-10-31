@@ -2,6 +2,7 @@ import Player from "@/app/setup/player/[id]/Player";
 import Grid from "@mui/material/Grid2";
 import React from "react";
 import { Button, Stack } from "@mui/material";
+import NotFound from "@/app/not-found";
 
 export default async function PlayerPage({
   params,
@@ -12,6 +13,10 @@ export default async function PlayerPage({
 }) {
   const tournamentId = (await params).id;
   const playersParam = (await searchParams).p;
+
+  if (!playersParam) {
+    return <NotFound />;
+  }
 
   const renderPlayerComponent = Array.from({ length: parseInt(playersParam) });
 
