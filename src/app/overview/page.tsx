@@ -2,7 +2,7 @@ import { getTournaments } from "@/prisma/db";
 
 export default async function OverviewPage() {
   const tournaments = await getTournaments();
-  console.log(tournaments);
+
   return (
     <ul>
       {tournaments.map((tournament) => (

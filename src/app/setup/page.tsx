@@ -1,102 +1,122 @@
 "use client";
 
-import {
-  Button,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  TextField,
-} from "@mui/material";
 import { createTournament } from "@/app/setup/action";
 import React, { useActionState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 export default function SetupPage() {
   const [state, formAction, isPending] = useActionState(createTournament, null);
 
   return (
-    <div>
-      <h1>Start setup the tournament.</h1>
-      <form action={formAction}>
-        <Stack
-          direction={{ xs: "column", sm: "column" }}
-          spacing={{ xs: 1, sm: 2, md: 4 }}
-        >
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 1, sm: 2, md: 4 }}
-          >
-            <TextField
-              required
-              type="text"
-              label="Name"
-              helperText="Enter the tournament name"
-              color="primary"
-              name="name"
-            />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="max-w-md w-full">
+        <CardHeader>
+          <CardTitle>Create Tournament</CardTitle>
+          <CardDescription>
+            Fill in the tournament details to get started
+          </CardDescription>
+        </CardHeader>
 
-            <TextField
-              required
-              type="number"
-              label="Players"
-              helperText="Number of total players."
-              color="primary"
-              name="players"
-            />
-          </Stack>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 1, sm: 2, md: 4 }}
-          >
-            <RadioGroup
-              aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="MULTI"
-              name="elimination-type"
-            >
-              <FormLabel id="demo-radio-buttons-group-label">
-                Choose elimination type
-              </FormLabel>
-              <FormControlLabel
-                value="MULTI"
-                control={<Radio />}
-                label="Multi-Level"
+        <CardContent>
+          <form action={formAction} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Tournament Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter tournament name"
+                aria-describedby="name-error"
               />
-              <FormControlLabel
-                value="SINGLE"
-                control={<Radio />}
-                label="Single"
-              />
-            </RadioGroup>
+              {state?.errors?.name && (
+                <p className="text-sm text-destructive" id="name-error">
+                  {state.errors.name[0]}
+                </p>
+              )}
+            </div>
 
-            <RadioGroup
-              aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue={2}
-              name="group-number"
-            >
-              <FormLabel id="demo-radio-buttons-group-label">
-                How many groups?
-              </FormLabel>
-              <FormControlLabel value={2} control={<Radio />} label="2" />
-              <FormControlLabel value={4} control={<Radio />} label="4" />
-            </RadioGroup>
-          </Stack>
-          <Stack
-            direction={{ xs: "column", sm: "column" }}
-            spacing={{ xs: 1, sm: 2, md: 4 }}
-            alignItems="flex-end"
-          >
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              aria-disabled={isPending}
-            >
-              Continue
+            <div className="space-y-2">
+              <Label htmlFor="players">Number of Players</Label>
+              <Input
+                id="players"
+                name="players"
+                type="number"
+                min="4"
+                max="32"
+                placeholder="Enter number of players"
+                aria-describedby="playerCount-error"
+                defaultValue={4}
+              />
+              {state?.errors?.players && (
+                <p className="text-sm text-destructive" id="playerCount-error">
+                  {state.errors.players[0]}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="eliminationType">Elimination Type</Label>
+              <Select name="eliminationType" defaultValue="SINGLE">
+                <SelectTrigger aria-describedby="eliminationType-error">
+                  <SelectValue placeholder="Select elimination type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SINGLE">Single Elimination</SelectItem>
+                  <SelectItem value="MULTI">Multi Elimination</SelectItem>
+                </SelectContent>
+              </Select>
+              {state?.errors?.eliminationType && (
+                <p
+                  className="text-sm text-destructive"
+                  id="eliminationType-error"
+                >
+                  {state.errors.eliminationType[0]}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="numberOfGroups">Number of Groups</Label>
+              <Select name="numberOfGroups" defaultValue="2">
+                <SelectTrigger aria-describedby="numberOfGroups-error">
+                  <SelectValue placeholder="Select number of groups" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">2 Groups</SelectItem>
+                  <SelectItem value="4">4 Groups</SelectItem>
+                </SelectContent>
+              </Select>
+              {state?.errors?.numberOfGroups && (
+                <p
+                  className="text-sm text-destructive"
+                  id="numberOfGroups-error"
+                >
+                  {state.errors.numberOfGroups[0]}
+                </p>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full" aria-disabled={isPending}>
+              Next: Add Players
             </Button>
-          </Stack>
-        </Stack>
-      </form>
+          </form>
+        </CardContent>
+      </Card>
       <p>{state?.message}</p>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 interface SetupProps {
   name: string;
@@ -9,6 +10,13 @@ interface SetupProps {
   eliminationType: string;
   numberOfGroups: number;
 }
+
+const tournamentSchema = z.object({
+  name: z.string().min(2, "Tournament name must be at least 2 characters"),
+  players: z.number().min(4).max(32),
+  eliminationType: z.enum(["SINGLE", "MULTI"]),
+  numberOfGroups: z.number(),
+});
 
 export async function createTournament(
   currentState: unknown,
@@ -19,29 +27,43 @@ export async function createTournament(
     players: parseInt(formData.get("players") as string),
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    eliminationType: formData.get("elimination-type")?.toString(),
-    numberOfGroups: parseInt(formData.get("group-number") as string),
+    eliminationType: formData.get("eliminationType")?.toString(),
+    numberOfGroups: parseInt(formData.get("numberOfGroups") as string),
   };
 
+  const validation = tournamentSchema.safeParse({
+    name: rawFormData.name,
+    players: rawFormData.players,
+    eliminationType: rawFormData.eliminationType,
+    numberOfGroups: rawFormData.numberOfGroups,
+  });
+
   let tournamentId = null;
-  try {
-    const tournament = await prisma!.tournament.create({
-      data: {
-        name: rawFormData.name,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        eliminationType: rawFormData.eliminationType,
-        numberOfGroups: rawFormData.numberOfGroups,
-      },
-    });
-    tournamentId = tournament.id;
-  } catch (e) {
+
+  if (validation.success) {
+    try {
+      const tournament = await prisma!.tournament.create({
+        data: {
+          name: rawFormData.name,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          eliminationType: rawFormData.eliminationType,
+          numberOfGroups: rawFormData.numberOfGroups,
+        },
+      });
+      tournamentId = tournament.id;
+    } catch (e) {
+      return {
+        message: `Failed to create tournament: ${e}`,
+      };
+    }
+
+    redirect(`/setup/player/${tournamentId}?p=${rawFormData.players}`);
+  } else {
     return {
-      message: `Failed to create tournament: ${e}`,
+      errors: validation.error.flatten().fieldErrors,
     };
   }
-
-  redirect(`/setup/player/${tournamentId}?p=${rawFormData.players}`);
 }
 
 export async function createTournamentPlayers(
