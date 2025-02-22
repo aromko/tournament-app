@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { History, PlusCircle, Trophy } from "lucide-react";
 
-export default function Page() {
+export default function Index() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <Card className="max-w-md w-full">
@@ -29,7 +29,7 @@ export default function Page() {
             </Button>
           </Link>
 
-          <Link href="/tournaments/past" className="block">
+          <Link href="/overview/past" className="block">
             <Button variant="outline" size="lg" className="w-full gap-2">
               <History className="h-5 w-5" />
               Past Tournaments
