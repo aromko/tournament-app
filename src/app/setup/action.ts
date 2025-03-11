@@ -22,7 +22,7 @@ export async function createTournament(
   currentState: unknown,
   formData: FormData,
 ) {
-  const rawFormData: SetupProps = {
+  const { name, players, eliminationType, numberOfGroups }: SetupProps = {
     name: formData.get("name")!.toString(),
     players: parseInt(formData.get("players") as string),
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -32,10 +32,10 @@ export async function createTournament(
   };
 
   const validation = tournamentSchema.safeParse({
-    name: rawFormData.name,
-    players: rawFormData.players,
-    eliminationType: rawFormData.eliminationType,
-    numberOfGroups: rawFormData.numberOfGroups,
+    name,
+    players,
+    eliminationType,
+    numberOfGroups,
   });
 
   let tournamentId = null;
@@ -44,11 +44,11 @@ export async function createTournament(
     try {
       const tournament = await prisma!.tournament.create({
         data: {
-          name: rawFormData.name,
+          name,
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-expect-error
-          eliminationType: rawFormData.eliminationType,
-          numberOfGroups: rawFormData.numberOfGroups,
+          eliminationType,
+          numberOfGroups,
         },
       });
       tournamentId = tournament.id;
@@ -58,7 +58,7 @@ export async function createTournament(
       };
     }
 
-    redirect(`/setup/player/${tournamentId}?p=${rawFormData.players}`);
+    redirect(`/setup/player/${tournamentId}?p=${players}`);
   } else {
     return {
       errors: validation.error.flatten().fieldErrors,
@@ -74,8 +74,6 @@ export async function createTournamentPlayers(
     Array.from(formData.entries()).filter(([key]) => key.startsWith("player_")),
   );
 
-  console.log(playerData);
-
   try {
     for (const name of Object.values(playerData)) {
       await prisma!.player.create({
@@ -85,6 +83,8 @@ export async function createTournamentPlayers(
         },
       });
     }
+
+    return { ...currentState, players: playerData };
   } catch (e) {
     return {
       message: `Failed to create player: ${e}`,
