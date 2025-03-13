@@ -19,7 +19,7 @@ export default function PlayerPage() {
 
   const renderPlayerComponent = Array.from({ length: parseInt(playersParam) });
 
-  const [state, formAction, isPending] = useActionState(
+  const [error, formAction, isPending] = useActionState(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     createTournamentPlayers,
@@ -39,11 +39,11 @@ export default function PlayerPage() {
           </Button>
         </div>
       </form>
-      {state?.message && (
+      {error?.message && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{state?.message}</AlertDescription>
+          <AlertDescription>{error?.message}</AlertDescription>
         </Alert>
       )}
     </div>

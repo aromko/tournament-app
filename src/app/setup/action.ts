@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { countPlayersByTournamentId, createPlayer } from "@/prisma/db";
 
 interface SetupProps {
   name: string;
@@ -67,24 +68,29 @@ export async function createTournament(
 }
 
 export async function createTournamentPlayers(
-  currentState: { tournamentId: string },
+  currentState: { tournamentId?: string },
   formData: FormData,
 ) {
   const playerData = Object.fromEntries(
     Array.from(formData.entries()).filter(([key]) => key.startsWith("player_")),
   );
 
-  try {
-    for (const name of Object.values(playerData)) {
-      await prisma!.player.create({
-        data: {
-          name: name as string,
-          tournamentId: parseInt(currentState.tournamentId),
-        },
-      });
-    }
+  if (!currentState.tournamentId) {
+    return {
+      message: "Invalid tournament ID",
+    };
+  }
 
-    return { ...currentState, players: playerData };
+  try {
+    const playersCount = await countPlayersByTournamentId(
+      parseInt(currentState.tournamentId),
+    );
+    console.log(playersCount);
+    if (playersCount === 0) {
+      for (const name of Object.values(playerData)) {
+        await createPlayer(name, currentState.tournamentId);
+      }
+    }
   } catch (e) {
     return {
       message: `Failed to create player: ${e}`,
