@@ -1,14 +1,14 @@
 import prisma from "@/lib/prisma";
 
-export async function createPlayer(name: File | string, tournamentId: string) {
-  await prisma!.player.create({
+export async function createPlayer(name: string, tournamentId: number) {
+  return prisma.player.create({
     data: {
-      name: name as string,
-      tournamentId: parseInt(tournamentId),
+      name,
+      tournamentId,
     },
   });
 }
 
 export async function countPlayersByTournamentId(tournamentId: number) {
-  return prisma!.player.count({ where: { tournamentId } });
+  return prisma.player.count({ where: { tournamentId } });
 }

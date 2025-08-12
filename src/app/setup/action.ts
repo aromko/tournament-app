@@ -5,13 +5,6 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { countPlayersByTournamentId, createPlayer } from "@/prisma/db";
 
-interface SetupProps {
-  name: string;
-  players: number;
-  eliminationType: string;
-  numberOfGroups: number;
-}
-
 const tournamentSchema = z.object({
   name: z.string().min(2, "Tournament name must be at least 2 characters"),
   players: z.number().min(4).max(32),
@@ -23,31 +16,33 @@ export async function createTournament(
   currentState: unknown,
   formData: FormData,
 ) {
-  const { name, players, eliminationType, numberOfGroups }: SetupProps = {
-    name: formData.get("name")!.toString(),
-    players: parseInt(formData.get("players") as string),
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    eliminationType: formData.get("eliminationType")?.toString(),
-    numberOfGroups: parseInt(formData.get("numberOfGroups") as string),
+  const raw = {
+    name: formData.get("name"),
+    players: formData.get("players"),
+    eliminationType: formData.get("eliminationType"),
+    numberOfGroups: formData.get("numberOfGroups"),
   };
 
   const validation = tournamentSchema.safeParse({
-    name,
-    players,
-    eliminationType,
-    numberOfGroups,
+    name: typeof raw.name === "string" ? raw.name : "",
+    players:
+      typeof raw.players === "string" ? parseInt(raw.players, 10) : Number.NaN,
+    eliminationType:
+      typeof raw.eliminationType === "string" ? raw.eliminationType : "SINGLE",
+    numberOfGroups:
+      typeof raw.numberOfGroups === "string"
+        ? parseInt(raw.numberOfGroups, 10)
+        : 2,
   });
 
   let tournamentId = null;
 
   if (validation.success) {
+    const { name, players, eliminationType, numberOfGroups } = validation.data;
     try {
-      const tournament = await prisma!.tournament.create({
+      const tournament = await prisma.tournament.create({
         data: {
           name,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
           eliminationType,
           numberOfGroups,
         },
@@ -87,8 +82,12 @@ export async function createTournamentPlayers(
     );
 
     if (playersCount === 0) {
-      for (const name of Object.values(playerData)) {
-        await createPlayer(name, currentState.tournamentId);
+      const idNum = parseInt(currentState.tournamentId, 10);
+      for (const val of Object.values(playerData)) {
+        const name = typeof val === "string" ? val.trim() : "";
+        if (name) {
+          await createPlayer(name, idNum);
+        }
       }
     }
   } catch (e) {
