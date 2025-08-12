@@ -85,7 +85,7 @@ export async function createTournamentPlayers(
     const playersCount = await countPlayersByTournamentId(
       parseInt(currentState.tournamentId),
     );
-    console.log(playersCount);
+
     if (playersCount === 0) {
       for (const name of Object.values(playerData)) {
         await createPlayer(name, currentState.tournamentId);
@@ -96,4 +96,6 @@ export async function createTournamentPlayers(
       message: `Failed to create player: ${e}`,
     };
   }
+
+  redirect(`/setup/teams`);
 }
