@@ -1,13 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { DndContext, type DragEndEvent } from "@dnd-kit/core";
+import { DndContext } from "@dnd-kit/core";
 import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DraggablePlayer } from "@/components/DraggablePlayer";
-import { ContainerId, DroppableColumn } from "@/components/DroppableColumn";
+import { DroppableColumn } from "@/components/DroppableColumn";
+import { useHandleDragEnd, type ContainersState } from "@/hooks/useHandleDragEnd";
 
 export type Player = { id: string; name: string };
-type ContainersState = Record<ContainerId, string[]>; // containerId -> array of playerIds
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -48,28 +48,8 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
     [gridColumnCount],
   );
 
-  function getContainerIdByPlayer(playerId: string): ContainerId | null {
-    for (const [cid, list] of Object.entries(containers)) {
-      if (list.includes(playerId)) return cid;
-    }
-    return null;
-  }
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over) return;
-
-    const playerId = String(active.id);
-    const to = String(over.id) as ContainerId;
-
-    // Validate destination container
-    if (!(to in containers)) return;
-
-    const from = getContainerIdByPlayer(playerId);
-    if (!from || from === to) return;
-
-    setContainers((prev) => movePlayer(prev, from, to, playerId));
-  }
+  const handleDragEnd = useHandleDragEnd(containers, setContainers);
 
   return (
     <div className="mx-6 md:mx-16 lg:mx-32 xl:mx-60 2xl:mx-80 grid gap-6 grid-cols-8 items-start">
@@ -143,18 +123,4 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
     return Array.from({ length: count }, (_, i) => `group-${i + 1}` as const);
   }
 
-  function movePlayer(
-    prev: ContainersState,
-    from: ContainerId,
-    to: ContainerId,
-    playerId: string,
-  ): ContainersState {
-    if (!prev[from] || !prev[to]) return prev;
-    if (from === to) return prev;
-
-    const next: ContainersState = { ...prev };
-    next[from] = next[from].filter((id) => id !== playerId);
-    if (!next[to].includes(playerId)) next[to] = [...next[to], playerId];
-    return next;
-  }
 }
