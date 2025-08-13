@@ -1,65 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  DndContext,
-  type DragEndEvent,
-  useDraggable,
-  useDroppable,
-} from "@dnd-kit/core";
+import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { DraggablePlayer } from "@/components/DraggablePlayer";
+import { ContainerId, DroppableColumn } from "@/components/DroppableColumn";
 
 export type Player = { id: string; name: string };
-type ContainerId = string; // e.g. "unassigned", "group-1", ...
 type ContainersState = Record<ContainerId, string[]>; // containerId -> array of playerIds
-type DraggablePlayerProps = { player: Player };
-type DroppableColumnProps = {
-  id: ContainerId;
-  title: string;
-  children?: React.ReactNode;
-};
-
-const DraggablePlayer: React.FC<DraggablePlayerProps> = ({ player }) => {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: player.id,
-  });
-  const style: React.CSSProperties = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
-    : {};
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className="select-none cursor-grab active:cursor-grabbing px-3 py-2 rounded-md border bg-background shadow-sm text-sm"
-      style={style}
-    >
-      {player.name}
-    </div>
-  );
-};
-
-const DroppableColumn: React.FC<DroppableColumnProps> = ({
-  id,
-  title,
-  children,
-}) => {
-  const { isOver, setNodeRef } = useDroppable({ id });
-  return (
-    <div className="flex flex-col gap-3">
-      <h3 className="font-medium text-sm text-muted-foreground">{title}</h3>
-      <div
-        ref={setNodeRef}
-        className={`min-h-36 rounded-lg border p-3 transition-colors ${isOver ? "ring-2 ring-primary/50 bg-accent/30" : ""}`}
-      >
-        <div className="flex flex-col gap-2">{children}</div>
-        {React.Children.count(children) === 0 ? (
-          <div className="text-sm text-muted-foreground">Drop here</div>
-        ) : null}
-      </div>
-    </div>
-  );
-};
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
