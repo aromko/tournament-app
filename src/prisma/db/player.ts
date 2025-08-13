@@ -12,3 +12,7 @@ export async function createPlayer(name: string, tournamentId: number) {
 export async function countPlayersByTournamentId(tournamentId: number) {
   return prisma.player.count({ where: { tournamentId } });
 }
+
+export async function getPlayersByTournamentId(tournamentId: number) {
+  return prisma.player.findMany({ where: { tournamentId } });
+}

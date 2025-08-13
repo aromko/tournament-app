@@ -96,5 +96,5 @@ export async function createTournamentPlayers(
     };
   }
 
-  redirect(`/setup/teams`);
+  redirect(`/setup/teams/${currentState.tournamentId}`);
 }
