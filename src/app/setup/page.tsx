@@ -24,7 +24,7 @@ export default function SetupPage() {
   const [state, formAction, isPending] = useActionState(createTournament, null);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="flex items-center justify-center py-8">
       <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle>Create Tournament</CardTitle>

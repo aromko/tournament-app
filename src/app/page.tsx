@@ -5,7 +5,7 @@ import { History, PlusCircle, Trophy } from "lucide-react";
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="flex items-center justify-center py-8">
       <Card className="max-w-md w-full">
         <CardHeader className="text-center">
           <Trophy className="mx-auto h-12 w-12 text-primary" />

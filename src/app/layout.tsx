@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import AppHeader from "@/components/AppHeader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,8 +25,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen bg-background flex flex-col justify-center p-4">
-            {children}
+          <div className="min-h-screen bg-background flex flex-col">
+            <AppHeader />
+            <main className="container mx-auto px-4 py-6 flex-1 w-full">
+              {children}
+            </main>
           </div>
         </ThemeProvider>
       </body>
