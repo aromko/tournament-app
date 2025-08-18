@@ -84,6 +84,32 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
     });
   };
 
+  const handleRemoveGroup = () => {
+    // Find the highest existing group index
+    setContainers((prev) => {
+      let max = 0;
+      for (const k of Object.keys(prev)) {
+        const m = /^group-(\d+)$/.exec(k);
+        if (m) max = Math.max(max, Number(m[1]));
+      }
+      if (max <= 0) return prev; // no groups
+      const key = `group-${max}` as const;
+      const toMove = prev[key] ?? [];
+      const rest: Record<string, string[]> = { ...prev };
+      delete rest[key];
+      const nextUnassigned = [
+        ...(prev[UNASSIGNED_ID] ?? []),
+        ...toMove,
+      ];
+      const next: ContainersState = {
+        ...(rest as ContainersState),
+        [UNASSIGNED_ID]: nextUnassigned,
+      } as ContainersState;
+      return next;
+    });
+    setGroupCountState((prev) => Math.max(1, prev - 1));
+  };
+
   const handleShuffle = () => {
     // Gather all non-removed players currently in any container
     const all: string[] = [];
@@ -154,6 +180,15 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
         onClick={handleAddGroup}
       >
         Add Group
+      </Button>
+      <Button
+        type="button"
+        className="w-full col-end-9 col-span-2"
+        aria-disabled={isPending}
+        variant="secondary"
+        onClick={handleRemoveGroup}
+      >
+        Remove Group
       </Button>
       <Button
         type="button"
