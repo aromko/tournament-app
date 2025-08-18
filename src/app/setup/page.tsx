@@ -12,12 +12,6 @@ export default function SetupPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <header className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold">Create Tournament</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Fill in the tournament details to get started.
-        </p>
-      </header>
 
       <form action={formAction} className="space-y-6">
         <div className="space-y-2">

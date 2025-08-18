@@ -30,13 +30,6 @@ export default function PlayerPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <header className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold">Add Players</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Please enter player names for your tournament.
-        </p>
-      </header>
-
       <div className="grid gap-6 grid-cols-1 md:grid-cols-8 items-end">
         <form
           id="playerForm"
