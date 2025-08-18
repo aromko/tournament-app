@@ -1,5 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { DndContext } from "@dnd-kit/core";
 import React, { useActionState, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
@@ -8,6 +14,7 @@ import { DroppableColumn } from "@/components/DroppableColumn";
 import { type ContainersState, useHandleDragEnd } from "@/hooks/useHandleDragEnd";
 import { buildGroupIds, buildInitialState, parseGroupCount } from "@/lib/utils";
 import { assignTournamentTeams } from "@/app/setup/action";
+import { EllipsisVertical } from "lucide-react";
 
 export type Player = { id: string; name: string };
 export const UNASSIGNED_ID = "unassigned" as const;
@@ -172,24 +179,35 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
         </form>
       </DndContext>
       {/* Actions */}
-      <Button
-        type="button"
-        className="w-full col-end-9 col-span-2"
-        aria-disabled={isPending}
-        variant="secondary"
-        onClick={handleAddGroup}
-      >
-        Add Group
-      </Button>
-      <Button
-        type="button"
-        className="w-full col-end-9 col-span-2"
-        aria-disabled={isPending}
-        variant="secondary"
-        onClick={handleRemoveGroup}
-      >
-        Remove Group
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            className="w-fit col-end-9 col-span-2"
+            variant="outline"
+          >
+            <EllipsisVertical />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onSelect={(e: Event) => {
+              e.preventDefault();
+              handleAddGroup();
+            }}
+          >
+            Add Group
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e: Event) => {
+              e.preventDefault();
+              handleRemoveGroup();
+            }}
+          >
+            Remove Group
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button
         type="button"
         className="w-full col-end-7 col-span-2"
