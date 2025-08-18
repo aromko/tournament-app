@@ -116,6 +116,13 @@ export async function assignTournamentTeams(
   const removedIds: number[] = [];
   const assignments: { id: number; groupNumber: number }[] = [];
 
+  let numberOfGroups: number | null = null;
+  const rawNumberOfGroups = formData.get("numberOfGroups");
+  if (typeof rawNumberOfGroups === "string") {
+    const n = parseInt(rawNumberOfGroups, 10);
+    if (Number.isFinite(n)) numberOfGroups = n;
+  }
+
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("removed_")) {
       const idStr = key.slice("removed_".length);
@@ -130,6 +137,10 @@ export async function assignTournamentTeams(
         assignments.push({ id: idNum, groupNumber: groupNum });
       }
     }
+  }
+
+  if (numberOfGroups == null && assignments.length > 0) {
+    numberOfGroups = Math.max(...assignments.map((a) => a.groupNumber));
   }
 
   try {
@@ -147,6 +158,13 @@ export async function assignTournamentTeams(
             data: { groupNumber: a.groupNumber },
           });
         }
+      }
+
+      if (numberOfGroups != null && Number.isFinite(numberOfGroups)) {
+        await tx.tournament.update({
+          where: { id: tournamentId },
+          data: { numberOfGroups },
+        });
       }
     });
   } catch (e) {

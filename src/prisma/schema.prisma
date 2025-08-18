@@ -30,7 +30,7 @@ model Player {
   name          String      @db.VarChar(255)
   tournament    Tournament  @relation(fields: [tournamentId], references: [id])
   tournamentId  Int
-^  groupNumber   Int?
+  groupNumber   Int?
 }
 
 enum EliminationType {
