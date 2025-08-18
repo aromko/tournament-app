@@ -143,10 +143,11 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
   };
 
   return (
-    <div className="mx-6 md:mx-16 lg:mx-32 xl:mx-60 2xl:mx-80 grid gap-6 grid-cols-8 items-start">
-      <h1 className="col-span-full text-2xl font-semibold">
-        Assign players to groups
-      </h1>
+    <div className="max-w-6xl mx-auto px-4 py-8 grid gap-6 grid-cols-8 items-start">
+      <div className="col-span-full text-center">
+        <h1 className="text-2xl font-semibold">Assign players to groups</h1>
+        <p className="text-sm text-muted-foreground mt-1">Drag and drop players into groups. Ensure all players are assigned before continuing.</p>
+      </div>
       <DndContext onDragEnd={handleDragEnd}>
         {/* Left: Unassigned players */}
         <div className="col-span-8 lg:col-span-3 space-y-4">
@@ -224,7 +225,7 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
         disabled={isPending || !canContinue}
         form="teamForm"
       >
-        Continue
+        Start tournament
       </Button>
       {actionError?.message ? (
         <div className="col-span-full text-red-600 text-sm">{actionError.message}</div>
