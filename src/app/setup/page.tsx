@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 export default function SetupPage() {
   const [state, formAction, isPending] = useActionState(createTournament, null);
@@ -84,8 +85,11 @@ export default function SetupPage() {
           )}
         </div>
 
-        <div className="flex justify-center">
-          <Button type="submit" className="w-full" aria-disabled={isPending}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <Button asChild type="button" variant="outline" className="w-full md:col-span-1">
+            <Link href="/">Cancel</Link>
+          </Button>
+          <Button type="submit" className="w-full md:col-span-3" aria-disabled={isPending}>
             Next: Add players
           </Button>
         </div>
