@@ -56,7 +56,6 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
   );
 
   const [actionError, formAction, isPending] = useActionState(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error Server Action
     assignTournamentTeams,
     { tournamentId },
