@@ -15,6 +15,7 @@ import { type ContainersState, useHandleDragEnd } from "@/hooks/useHandleDragEnd
 import { buildGroupIds, buildInitialState, parseGroupCount } from "@/lib/utils";
 import { assignTournamentTeams } from "@/app/setup/action";
 import { EllipsisVertical } from "lucide-react";
+import Link from "next/link";
 
 export type Player = { id: string; name: string };
 export const UNASSIGNED_ID = "unassigned" as const;
@@ -46,7 +47,7 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
   );
   const groupIds = useMemo(() => buildGroupIds(groupCountState), [groupCountState]);
 
-  const gridColumnCount = useMemo(() => Math.min(groupCountState, 4), [groupCountState]);
+  const gridColumnCount = useMemo(() => Math.min(groupCountState, 2), [groupCountState]);
   const gridTemplateStyle = useMemo(
     () => ({
       gridTemplateColumns: `repeat(${gridColumnCount}, minmax(0, 1fr))`,
@@ -175,54 +176,62 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
           ))}
         </form>
       </DndContext>
-      {/* Actions */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            className="w-fit col-end-9 col-span-2"
-            variant="outline"
-          >
-            <EllipsisVertical />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onSelect={(e: Event) => {
-              e.preventDefault();
-              handleAddGroup();
-            }}
-          >
-            Add Group
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e: Event) => {
-              e.preventDefault();
-              handleRemoveGroup();
-            }}
-          >
-            Remove Group
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <Button
-        type="button"
-        className="w-full col-end-7 col-span-2"
-        aria-disabled={isPending}
-        variant="secondary"
-        onClick={handleShuffle}
-      >
-        Shuffle
-      </Button>
-      <Button
-        type="submit"
-        className="w-full col-span-full"
-        aria-disabled={isPending || !canContinue}
-        disabled={isPending || !canContinue}
-        form="teamForm"
-      >
-        Start tournament
-      </Button>
+      {/* Actions row: Shuffle and Action menu on the same line */}
+      <div className="col-span-full flex items-center gap-0">
+        <Button
+          type="button"
+          className="w-auto"
+          aria-disabled={isPending}
+          variant="secondary"
+          onClick={handleShuffle}
+        >
+          Shuffle
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              className="w-auto"
+              variant="ghost"
+              aria-label="Actions"
+            >
+              <EllipsisVertical />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem
+              onSelect={(e: Event) => {
+                e.preventDefault();
+                handleAddGroup();
+              }}
+            >
+              Add Group
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(e: Event) => {
+                e.preventDefault();
+                handleRemoveGroup();
+              }}
+            >
+              Remove Group
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className="w-full col-span-full grid grid-cols-1 md:grid-cols-4 gap-3">
+        <Button asChild type="button" variant="outline" className="w-full md:col-span-1">
+          <Link href={`/setup/player/${tournamentId}?p=${players.length}`}>Cancel</Link>
+        </Button>
+        <Button
+          type="submit"
+          className="w-full md:col-span-3"
+          aria-disabled={isPending || !canContinue}
+          disabled={isPending || !canContinue}
+          form="teamForm"
+        >
+          Start tournament
+        </Button>
+      </div>
       {actionError?.message ? (
         <div className="col-span-full text-red-600 text-sm">{actionError.message}</div>
       ) : null}

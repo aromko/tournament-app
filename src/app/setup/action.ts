@@ -3,7 +3,6 @@
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { countPlayersByTournamentId, createPlayer } from "@/prisma/db";
 
 const tournamentSchema = z.object({
   name: z.string().min(2, "Tournament name must be at least 2 characters"),
@@ -81,9 +80,7 @@ export async function createTournamentPlayers(
   currentState: { tournamentId?: string },
   formData: FormData,
 ) {
-  const playerData = Object.fromEntries(
-    Array.from(formData.entries()).filter(([key]) => key.startsWith("player_")),
-  );
+  const playerEntries = Array.from(formData.entries()).filter(([key]) => key.startsWith("player_"));
 
   if (!currentState.tournamentId) {
     return {
@@ -91,23 +88,55 @@ export async function createTournamentPlayers(
     };
   }
 
-  try {
-    const playersCount = await countPlayersByTournamentId(
-      parseInt(currentState.tournamentId),
-    );
+  const tournamentId = parseInt(currentState.tournamentId, 10);
+  if (!Number.isFinite(tournamentId)) {
+    return { message: "Invalid tournament ID" };
+  }
 
-    if (playersCount === 0) {
-      const idNum = parseInt(currentState.tournamentId, 10);
-      for (const val of Object.values(playerData)) {
-        const name = typeof val === "string" ? val.trim() : "";
-        if (name) {
-          await createPlayer(name, idNum);
+  // Build ordered list of submitted names based on index suffix
+  const submittedNames: string[] = playerEntries
+    .map(([key, value]) => {
+      const m = /^player_(\d+)$/.exec(key);
+      const idx = m ? parseInt(m[1], 10) : Number.NaN;
+      const name = typeof value === "string" ? value.trim() : "";
+      return { idx, name };
+    })
+    .filter((x) => Number.isFinite(x.idx))
+    .sort((a, b) => a.idx - b.idx)
+    .map((x) => x.name);
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const existing = await tx.player.findMany({
+        where: { tournamentId },
+        orderBy: { id: "asc" },
+      });
+
+      // Update or create to match submitted names
+      for (let i = 0; i < submittedNames.length; i++) {
+        const name = submittedNames[i];
+        if (!name) continue; // inputs are required, but guard anyway
+        const current = existing[i];
+        if (current) {
+          if (current.name !== name) {
+            await tx.player.update({ where: { id: current.id }, data: { name } });
+          }
+        } else {
+          await tx.player.create({ data: { name, tournamentId } });
         }
       }
-    }
+
+      // If fewer names submitted than existing players, remove the extras
+      if (existing.length > submittedNames.length) {
+        const toDelete = existing.slice(submittedNames.length).map((p) => p.id);
+        if (toDelete.length > 0) {
+          await tx.player.deleteMany({ where: { id: { in: toDelete }, tournamentId } });
+        }
+      }
+    });
   } catch (e) {
     return {
-      message: `Failed to create player: ${e}`,
+      message: `Failed to save players: ${e}`,
     };
   }
 

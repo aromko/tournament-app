@@ -1,7 +1,7 @@
 "use client";
 
 import Player from "@/app/setup/player/[id]/Player";
-import React, { useActionState, useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import NotFound from "@/app/not-found";
 import { createTournamentPlayers } from "@/app/setup/action";
 import { useParams, useSearchParams } from "next/navigation";
@@ -19,6 +19,32 @@ export default function PlayerPage() {
   }
 
   const [players, setPlayers] = useState(parseInt(playersParam));
+  const [prefill, setPrefill] = useState<string[]>([]);
+
+  useEffect(() => {
+    let ignore = false;
+    async function loadPlayers() {
+      try {
+        const res = await fetch(`/api/tournament/${tournamentId}/players`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as { id: number; name: string }[];
+        if (ignore) return;
+        const names = data.map((p) => p.name ?? "");
+        setPrefill(names);
+        if (Number.isFinite(data.length) && data.length > 0) {
+          setPlayers(data.length);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    if (tournamentId) {
+      void loadPlayers();
+    }
+    return () => {
+      ignore = true;
+    };
+  }, [tournamentId]);
 
   const renderPlayerComponent = Array.from({ length: players });
 
@@ -51,7 +77,8 @@ export default function PlayerPage() {
         >
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
             {renderPlayerComponent.map((_, index) => (
-              <Player index={index.toString()} key={index} />
+              <Player index={index.toString()} key={index} defaultValue={prefill[index]}
+              />
             ))}
           </div>
         </form>
