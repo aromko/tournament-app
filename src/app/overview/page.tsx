@@ -1,12 +1,11 @@
 import { getTournaments } from "@/prisma/db";
-import { Tournament } from "@prisma/client";
 
 export default async function OverviewPage() {
-  const tournaments: Tournament[] = await getTournaments();
+  const tournaments = await getTournaments();
 
   return (
     <ul>
-      {tournaments.map((tournament: Tournament) => (
+      {tournaments.map((tournament) => (
         <li key={tournament.id}>{tournament.name}</li>
       ))}
     </ul>
