@@ -22,6 +22,7 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
+[![codecov](https://codecov.io/gh/aromko/tournament-app/graph/badge.svg?token=dLJo7sVJ9F)](https://codecov.io/gh/aromko/tournament-app)
 
 <!-- PROJECT LOGO -->
 <br />
