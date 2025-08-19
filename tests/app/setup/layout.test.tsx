@@ -4,7 +4,7 @@ import React from 'react'
 // No CSS imports here; SetupLayout doesn't import globals.css
 
 // Centralized mock for next/navigation.usePathname to avoid hoisting issues
-const usePathnameMock = vi.fn<[], string>()
+const usePathnameMock = vi.fn<() => string>()
 vi.mock('next/navigation', async () => {
   const actual = await vi.importActual<typeof import('next/navigation')>('next/navigation')
   return {

@@ -2,15 +2,14 @@ import { render, screen } from '@testing-library/react'
 import React from 'react'
 
 // Mock the global CSS imported by the layout to avoid JSDOM CSS parsing errors
-vi.mock('/src/app/globals.css', () => ({}), { virtual: true })
-vi.mock('@/app/globals.css', () => ({}), { virtual: true })
+vi.mock('/src/app/globals.css', () => ({}))
+vi.mock('@/app/globals.css', () => ({}))
 
 describe('RootLayout', () => {
   it('renders header and children', async () => {
     const { default: RootLayout } = await import('@/app/layout')
 
     render(
-      // @ts-expect-error JSX.IntrinsicElements for html/body are not part of JSDOM typings here
       <RootLayout>
         <div data-testid="content">Hello</div>
       </RootLayout>

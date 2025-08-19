@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // Hoist a shared mock reference so both the mocked module and tests use the same fn
 const h = vi.hoisted(() => ({
-  findMany: vi.fn<[], any>(),
+  findMany: vi.fn(),
 }))
 
 vi.mock('@/lib/prisma', () => ({

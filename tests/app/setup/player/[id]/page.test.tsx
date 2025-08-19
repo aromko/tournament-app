@@ -6,14 +6,13 @@ import React from "react";
 function mockUseActionState(state: unknown, isPending = false) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const spy = vi.spyOn(React as unknown as Record<string, any>, 'useActionState')
-  // @ts-expect-error tuple return
   spy.mockReturnValue([state, vi.fn(), isPending])
   return spy
 }
 
 // Centralized mocks for next/navigation to avoid hoisting conflicts
-const useSearchParamsMock = vi.fn<[], URLSearchParams>()
-const useParamsMock = vi.fn<[], { id?: string }>()
+const useSearchParamsMock = vi.fn<() => URLSearchParams>()
+const useParamsMock = vi.fn<() => { id?: string }>()
 vi.mock('next/navigation', async () => {
   const actual = await vi.importActual<typeof import('next/navigation')>('next/navigation')
   return {

@@ -3,8 +3,7 @@ import React from 'react'
 
 // Make React available globally for components compiled expecting global React (classic JSX runtime)
 // This avoids "React is not defined" when testing Next.js pages with preserved JSX.
-// @ts-expect-error attach to global for tests
-globalThis.React = React
+;(globalThis as any).React = React
 
 // Basic mock for next/link to render children directly (no JSX in setup)
 vi.mock('next/link', () => ({

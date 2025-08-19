@@ -8,8 +8,7 @@ vi.mock('react', async () => {
   const actual = await vi.importActual<typeof import('react')>('react');
   return {
     ...actual,
-    // @ts-expect-error tuple return
-    useActionState: () => [__mockActionState, vi.fn(), __mockIsPending],
+    useActionState: () => [__mockActionState, vi.fn(), __mockIsPending] as unknown as ReturnType<typeof React['useActionState']>,
   };
 });
 
