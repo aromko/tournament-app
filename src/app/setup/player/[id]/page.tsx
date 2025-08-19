@@ -7,7 +7,8 @@ import { createTournamentPlayers } from "@/app/setup/action";
 import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, UserPlus } from "lucide-react";
+import Link from "next/link";
 
 export default function PlayerPage() {
   const tournamentId = useParams().id;
@@ -31,6 +32,18 @@ export default function PlayerPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="grid gap-6 grid-cols-1 md:grid-cols-8 items-end">
+        <div className="w-full md:col-start-6 md:col-span-3 flex md:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setPlayers(players + 1)}
+            aria-disabled={isPending}
+            className="w-full md:w-auto"
+          >
+            <UserPlus />
+            Add Player
+          </Button>
+        </div>
         <form
           id="playerForm"
           action={formAction}
@@ -42,23 +55,19 @@ export default function PlayerPage() {
             ))}
           </div>
         </form>
-        <Button
-          type="button"
-          className="w-full md:col-end-9 md:col-span-2"
-          aria-disabled={isPending}
-          variant="secondary"
-          onClick={() => setPlayers(players + 1)}
-        >
-          Add Player
-        </Button>
-        <Button
-          type="submit"
-          className="w-full md:col-span-full col-span-1"
-          aria-disabled={isPending}
-          form="playerForm"
-        >
-          Next: Player Assignment
-        </Button>
+        <div className="w-full md:col-span-full grid grid-cols-1 md:grid-cols-4 gap-3">
+          <Button asChild type="button" variant="outline" className="w-full md:col-span-1">
+            <Link href="/setup">Cancel</Link>
+          </Button>
+          <Button
+            type="submit"
+            className="w-full md:col-span-3"
+            aria-disabled={isPending}
+            form="playerForm"
+          >
+            Next: Player Assignment
+          </Button>
+        </div>
 
         {error?.message && (
           <Alert variant="destructive" className="md:col-span-full col-span-1">
