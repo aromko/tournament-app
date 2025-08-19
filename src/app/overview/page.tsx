@@ -5,7 +5,7 @@ export default async function OverviewPage() {
 
   return (
     <ul>
-      {tournaments.map((tournament) => (
+      {tournaments.map((tournament: { id: number; name: string }) => (
         <li key={tournament.id}>{tournament.name}</li>
       ))}
     </ul>
