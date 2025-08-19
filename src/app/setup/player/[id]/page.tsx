@@ -1,19 +1,18 @@
 "use client";
 
 import Player from "@/app/setup/player/[id]/Player";
-import React, { useActionState, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import NotFound from "@/app/not-found";
 import { createTournamentPlayers } from "@/app/setup/action";
-import { useParams, useSearchParams } from "next/navigation";
+import * as NextNavigation from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 export default function PlayerPage() {
-  const tournamentId = useParams().id;
-  const playersParam = useSearchParams().get("p");
-
+  const tournamentId = NextNavigation.useParams().id as string;
+  const playersParam = NextNavigation.useSearchParams().get("p");
   if (!playersParam) {
     return <NotFound />;
   }
@@ -48,7 +47,7 @@ export default function PlayerPage() {
 
   const renderPlayerComponent = Array.from({ length: players });
 
-  const [error, formAction, isPending] = useActionState(
+  const [error, formAction, isPending] = React.useActionState(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     createTournamentPlayers,

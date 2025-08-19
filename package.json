@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "startup": "prisma generate --schema=src/prisma/schema.prisma && pnpm dev",
     "test": "vitest run",
+    "test:coverage": "pnpm test -- --coverage",
     "test:watch": "vitest"
   },
   "packageManager": "pnpm@9.7.0",
@@ -47,6 +48,7 @@
     "@types/node": "^24.2.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@vitest/coverage-v8": "2.1.9",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
