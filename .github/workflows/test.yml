@@ -34,3 +34,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: aromko/tournament-app
+          files: ./coverage/lcov.info
