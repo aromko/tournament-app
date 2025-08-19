@@ -200,16 +200,14 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuItem
-              onSelect={(e: Event) => {
-                e.preventDefault();
+              onSelect={() => {
                 handleAddGroup();
               }}
             >
               Add Group
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={(e: Event) => {
-                e.preventDefault();
+              onSelect={() => {
                 handleRemoveGroup();
               }}
             >

@@ -1,6 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Player } from "@/app/setup/teams/[id]/TeamsAssignment";
-import { FC } from "react";
+import React, { FC } from "react";
 
  type DraggablePlayerProps = { player: Player; onRemove?: () => void };
 

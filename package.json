@@ -10,7 +10,9 @@
     "lint:fix": "pnpm lint --fix",
     "format": "prettier --write \"**/*\"",
     "typecheck": "tsc --noEmit",
-    "startup": "prisma generate --schema=src/prisma/schema.prisma && pnpm dev"
+    "startup": "prisma generate --schema=src/prisma/schema.prisma && pnpm dev",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "packageManager": "pnpm@9.7.0",
   "dependencies": {
@@ -39,6 +41,9 @@
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@tailwindcss/postcss": "^4.1.11",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.2.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -46,13 +51,15 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.3.0",
+    "jsdom": "^25.0.1",
     "postcss": "^8.5.6",
     "prettier": "3.6.2",
     "prisma": "6.13.0",
     "tailwindcss": "^4.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.39.1"
+    "typescript-eslint": "^8.39.1",
+    "vitest": "^2.0.5"
   },
   "engines": {
     "node": ">=10",
