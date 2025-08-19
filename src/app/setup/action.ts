@@ -204,10 +204,16 @@ export async function assignTournamentTeams(
         }
       }
 
+      // Mark tournament as started and optionally persist number of groups
       if (numberOfGroups != null && Number.isFinite(numberOfGroups)) {
         await tx.tournament.update({
           where: { id: tournamentId },
-          data: { numberOfGroups },
+          data: { numberOfGroups, started: true },
+        });
+      } else {
+        await tx.tournament.update({
+          where: { id: tournamentId },
+          data: { started: true },
         });
       }
     });
@@ -215,5 +221,5 @@ export async function assignTournamentTeams(
     return { message: `Failed to assign teams: ${e}` };
   }
 
-  return { success: true } as const;
+  redirect("/");
 }

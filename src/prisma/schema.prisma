@@ -23,6 +23,7 @@ model Tournament {
   eliminationType EliminationType
   numberOfGroups  Int
   published       Boolean  @default(false)
+  started         Boolean  @default(false)
 }
 
 model Player {
