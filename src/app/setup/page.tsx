@@ -1,7 +1,7 @@
 "use client";
 
+import { Suspense, useActionState, useEffect, useState } from "react";
 import { createTournament } from "@/app/setup/action";
-import React, { useActionState, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,14 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 export default function SetupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SetupPageInner />
+    </Suspense>
+  );
+}
+
+function SetupPageInner() {
   const [state, formAction, isPending] = useActionState(createTournament, null);
   const searchParams = useSearchParams();
   const editingId = searchParams.get("id");
@@ -47,7 +55,6 @@ export default function SetupPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-
       <form action={formAction} className="space-y-6">
         {editingId ? (
           <input type="hidden" name="tournamentId" value={editingId} />
