@@ -17,6 +17,7 @@ export async function createTournament(
   formData: FormData,
 ) {
   const raw = {
+    tournamentId: formData.get("tournamentId"),
     name: formData.get("name"),
     players: formData.get("players"),
     eliminationType: formData.get("eliminationType"),
@@ -35,22 +36,36 @@ export async function createTournament(
         : 2,
   });
 
-  let tournamentId = null;
+  let tournamentId: number | null = null;
 
   if (validation.success) {
     const { name, players, eliminationType, numberOfGroups } = validation.data;
+    const rawId = typeof raw.tournamentId === "string" ? parseInt(raw.tournamentId, 10) : NaN;
+    const isEditing = Number.isFinite(rawId);
     try {
-      const tournament = await prisma.tournament.create({
-        data: {
-          name,
-          eliminationType,
-          numberOfGroups,
-        },
-      });
-      tournamentId = tournament.id;
+      if (isEditing) {
+        const updated = await prisma.tournament.update({
+          where: { id: rawId },
+          data: {
+            name,
+            eliminationType,
+            numberOfGroups,
+          },
+        });
+        tournamentId = updated.id;
+      } else {
+        const created = await prisma.tournament.create({
+          data: {
+            name,
+            eliminationType,
+            numberOfGroups,
+          },
+        });
+        tournamentId = created.id;
+      }
     } catch (e) {
       return {
-        message: `Failed to create tournament: ${e}`,
+        message: `Failed to ${isEditing ? "update" : "create"} tournament: ${e}`,
       };
     }
 

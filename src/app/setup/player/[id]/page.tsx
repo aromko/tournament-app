@@ -57,7 +57,7 @@ export default function PlayerPage() {
         </form>
         <div className="w-full md:col-span-full grid grid-cols-1 md:grid-cols-4 gap-3">
           <Button asChild type="button" variant="outline" className="w-full md:col-span-1">
-            <Link href="/setup">Cancel</Link>
+            <Link href={`/setup?id=${tournamentId}&p=${players}`}>Cancel</Link>
           </Button>
           <Button
             type="submit"
