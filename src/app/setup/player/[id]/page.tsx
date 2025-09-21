@@ -1,7 +1,7 @@
 "use client";
 
 import Player from "@/app/setup/player/[id]/Player";
-import React, { useEffect, useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import NotFound from "@/app/not-found";
 import { createTournamentPlayers } from "@/app/setup/action";
 import * as NextNavigation from "next/navigation";
@@ -47,7 +47,7 @@ export default function PlayerPage() {
 
   const renderPlayerComponent = Array.from({ length: players });
 
-  const [error, formAction, isPending] = React.useActionState(
+  const [error, formAction, isPending] = useActionState(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     createTournamentPlayers,
