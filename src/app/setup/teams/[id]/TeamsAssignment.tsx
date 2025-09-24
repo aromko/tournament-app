@@ -62,7 +62,8 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
   );
 
   const unassignedCount = containers[UNASSIGNED_ID]?.length ?? 0;
-  const canContinue = unassignedCount === 0;
+  const hasPlayers = players.length > 0;
+  const canContinue = hasPlayers && unassignedCount === 0;
 
   const handleRemove = (pid: string) => {
     setContainers((prev) => {
@@ -176,7 +177,7 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
         </form>
       </DndContext>
       {/* Actions row: Shuffle and Action menu on the same line */}
-      <div className="col-span-full flex items-center gap-0">
+      <div className="col-span-full flex items-center gap-2">
         <Button
           type="button"
           className="w-auto"
@@ -197,7 +198,7 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
               <EllipsisVertical />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
+          <DropdownMenuContent align="start" className="min-w-28">
             <DropdownMenuItem
               onSelect={() => {
                 handleAddGroup();
@@ -215,19 +216,47 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="w-full col-span-full grid grid-cols-1 md:grid-cols-4 gap-3">
-        <Button asChild type="button" variant="outline" className="w-full md:col-span-1">
+      <div className="w-full col-span-full grid grid-cols-1 md:grid-cols-5 gap-3">
+        <Button asChild type="button" variant="outline" className="w-full col-end-4">
           <Link href={`/setup/player/${tournamentId}?p=${players.length}`}>Cancel</Link>
         </Button>
-        <Button
-          type="submit"
-          className="w-full md:col-span-3"
-          aria-disabled={isPending || !canContinue}
-          disabled={isPending || !canContinue}
-          form="teamForm"
-        >
-          Start tournament
-        </Button>
+        <div className="flex col-end-6 col-span-2 gap-2">
+          <Button
+            type="submit"
+            name="openRegistration"
+            value="1"
+            className="w-full"
+            aria-disabled={isPending}
+            disabled={isPending}
+            form="teamForm"
+          >
+            Open registration
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                className="w-fit"
+                variant="ghost"
+                aria-label="More actions"
+              >
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-28">
+              <DropdownMenuItem asChild disabled={isPending || !canContinue}>
+                <button
+                  type="submit"
+                  form="teamForm"
+                  aria-disabled={isPending || !canContinue}
+                  disabled={isPending || !canContinue}
+                >
+                  Start tournament
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       {actionError?.message ? (
         <div className="col-span-full text-red-600 text-sm">{actionError.message}</div>

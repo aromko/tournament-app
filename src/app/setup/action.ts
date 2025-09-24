@@ -167,6 +167,9 @@ export async function assignTournamentTeams(
     if (Number.isFinite(n)) numberOfGroups = n;
   }
 
+  // If the submit button "Open registration" was clicked, it will include this field
+  const openRegistration = formData.get("openRegistration") != null;
+
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("removed_")) {
       const idStr = key.slice("removed_".length);
@@ -195,6 +198,19 @@ export async function assignTournamentTeams(
         });
       }
 
+      if (!openRegistration) {
+        // Guard: cannot start if there are no players left or no assignments submitted
+        if (typeof (tx as any)?.player?.count === "function") {
+          const remainingPlayers = await (tx as any).player.count({ where: { tournamentId } });
+          if (remainingPlayers === 0) {
+            throw new Error("Cannot start: no players in the tournament.");
+          }
+        }
+        if (assignments.length === 0) {
+          throw new Error("Cannot start: assign at least one player to a group.");
+        }
+      }
+
       if (assignments.length > 0) {
         for (const a of assignments) {
           await tx.player.updateMany({
@@ -204,13 +220,13 @@ export async function assignTournamentTeams(
         }
       }
 
-      // Mark tournament as started and optionally persist number of groups
+      // Update tournament: on open registration keep started=false, otherwise set started=true; always persist numberOfGroups if provided
       if (numberOfGroups != null && Number.isFinite(numberOfGroups)) {
         await tx.tournament.update({
           where: { id: tournamentId },
-          data: { numberOfGroups, started: true },
+          data: openRegistration ? { numberOfGroups } : { numberOfGroups, started: true },
         });
-      } else {
+      } else if (!openRegistration) {
         await tx.tournament.update({
           where: { id: tournamentId },
           data: { started: true },
@@ -218,7 +234,7 @@ export async function assignTournamentTeams(
       }
     });
   } catch (e) {
-    return { message: `Failed to assign teams: ${e}` };
+    return { message: `Failed to assign teams: ${e instanceof Error ? e.message : e}` };
   }
 
   redirect("/");

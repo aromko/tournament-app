@@ -107,7 +107,8 @@ describe('PlayerPage (/setup/player/[id])', () => {
     const { default: PlayerPage } = await import('@/app/setup/player/[id]/page')
     render(<PlayerPage />)
 
-    expect(await screen.findByText(/error/i)).toBeInTheDocument()
+    const alert = await screen.findByRole('alert')
+    expect(alert).toBeInTheDocument()
     expect(screen.getByText('Something went wrong')).toBeInTheDocument()
 
     fetchMock.mockRestore()

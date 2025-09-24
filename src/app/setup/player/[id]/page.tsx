@@ -1,7 +1,7 @@
 "use client";
 
 import Player from "@/app/setup/player/[id]/Player";
-import React, { useActionState, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import NotFound from "@/app/not-found";
 import { createTournamentPlayers } from "@/app/setup/action";
 import * as NextNavigation from "next/navigation";
@@ -47,7 +47,7 @@ export default function PlayerPage() {
 
   const renderPlayerComponent = Array.from({ length: players });
 
-  const [error, formAction, isPending] = useActionState(
+  const [error, formAction, isPending] = React.useActionState(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     createTournamentPlayers,
@@ -81,13 +81,13 @@ export default function PlayerPage() {
             ))}
           </div>
         </form>
-        <div className="w-full md:col-span-full grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Button asChild type="button" variant="outline" className="w-full md:col-span-1">
+        <div className="w-full md:col-span-full grid grid-cols-8 gap-3">
+          <Button asChild type="button" variant="outline" className="w-full col-span-2 col-end-7">
             <Link href={`/setup?id=${tournamentId}&p=${players}`}>Cancel</Link>
           </Button>
           <Button
             type="submit"
-            className="w-full md:col-span-3"
+            className="w-full col-span-2"
             aria-disabled={isPending}
             form="playerForm"
           >
