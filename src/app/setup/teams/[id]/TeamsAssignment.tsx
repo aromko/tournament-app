@@ -13,21 +13,21 @@ import { DraggablePlayer } from "@/components/DraggablePlayer";
 import { DroppableColumn } from "@/components/DroppableColumn";
 import { type ContainersState, useHandleDragEnd } from "@/hooks/useHandleDragEnd";
 import { buildGroupIds, buildInitialState, parseGroupCount } from "@/lib/utils";
-import { assignTournamentTeams } from "@/app/setup/action";
+import { assignTournamentTeams, deleteTournamentPlayer } from "@/app/setup/action";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 
 export type Player = { id: string; name: string; groupNumber?: number | null };
 export const UNASSIGNED_ID = "unassigned" as const;
 
-export default function TeamsAssignment({ players }: { players: Player[] }) {
+export default function TeamsAssignment({ players, tournamentId: tournamentIdProp, initialGroupCount }: { players: Player[]; tournamentId?: string; initialGroupCount?: number }) {
   const searchParams = useSearchParams();
   const params = useParams();
-  const tournamentId = String(params.id ?? "");
+  const tournamentId = tournamentIdProp ?? String((params as any)?.id ?? "");
 
   const groupCount = useMemo(
-    () => parseGroupCount(searchParams),
-    [searchParams],
+    () => (typeof initialGroupCount === "number" ? initialGroupCount : parseGroupCount(searchParams)),
+    [initialGroupCount, searchParams],
   );
 
   const [groupCountState, setGroupCountState] = useState<number>(groupCount);
@@ -68,11 +68,15 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
   const handleRemove = (pid: string) => {
     setContainers((prev) => {
       const next: ContainersState = { ...prev };
+      // Remove from all containers first
       for (const key of Object.keys(next)) {
         next[key] = next[key].filter((id) => id !== pid);
       }
+      // Add back to the unassigned "Players" column
+      next[UNASSIGNED_ID] = [...(next[UNASSIGNED_ID] ?? []), pid];
       return next;
     });
+    // Mark as removed so the server can clear any existing assignment
     setRemoved((prev) => {
       const next = new Set(prev);
       next.add(pid);
@@ -149,9 +153,29 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
         {/* Left: Unassigned players */}
         <div className="col-span-8 lg:col-span-3 space-y-4">
           <DroppableColumn id={UNASSIGNED_ID} title="Players">
-            {containers[UNASSIGNED_ID].map((pid) => (
-              <DraggablePlayer key={pid} player={playerById[pid]} onRemove={() => handleRemove(pid)} />
-            ))}
+            {containers[UNASSIGNED_ID].map((pid) => {
+              const p = playerById[pid];
+              if (!p) return null;
+              return (
+                <DraggablePlayer
+                  key={pid}
+                  player={p}
+                  actionEl={(
+                    <form action={deleteTournamentPlayer}>
+                      <input type="hidden" name="tournamentId" value={tournamentId} />
+                      <input type="hidden" name="playerId" value={pid} />
+                      <button
+                        type="submit"
+                        className="shrink-0 text-xs px-2 py-1 border rounded hover:bg-accent"
+                        aria-label={`Delete ${p.name}`}
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  )}
+                />
+              );
+            })}
           </DroppableColumn>
         </div>
         {/* Right: Groups grid */}
@@ -159,12 +183,16 @@ export default function TeamsAssignment({ players }: { players: Player[] }) {
           <div className="grid gap-4" style={gridTemplateStyle}>
             {groupIds.map((gid, idx) => (
               <DroppableColumn key={gid} id={gid} title={`Group ${idx + 1}`}>
-                {containers[gid].map((pid) => (
-                  <React.Fragment key={pid}>
-                    <input type="hidden" name={`player_${pid}`} value={`${idx + 1}`} />
-                    <DraggablePlayer player={playerById[pid]} onRemove={() => handleRemove(pid)} />
-                  </React.Fragment>
-                ))}
+                {containers[gid].map((pid) => {
+                  const p = playerById[pid];
+                  if (!p) return null;
+                  return (
+                    <React.Fragment key={pid}>
+                      <input type="hidden" name={`player_${pid}`} value={`${idx + 1}`} />
+                      <DraggablePlayer player={p} onRemove={() => handleRemove(pid)} />
+                    </React.Fragment>
+                  );
+                })}
               </DroppableColumn>
             ))}
           </div>

@@ -7,6 +7,9 @@ const h = vi.hoisted(() => ({
       create: vi.fn(),
       update: vi.fn(),
     },
+    player: {
+      deleteMany: vi.fn(),
+    },
     $transaction: vi.fn(),
   },
   tx: {
@@ -140,6 +143,35 @@ describe('setup actions', () => {
     })
   })
 
+  describe('deleteTournamentPlayer', () => {
+    it('returns message when ids are invalid', async () => {
+      const { deleteTournamentPlayer } = await import('@/app/setup/action')
+      const fd = new FormData()
+      fd.set('tournamentId', 'NaN')
+      fd.set('playerId', '5')
+      const res1 = await deleteTournamentPlayer(fd) as any
+      expect(res1.message).toMatch(/invalid tournament or player id/i)
+
+      const fd2 = new FormData()
+      fd2.set('tournamentId', '7')
+      fd2.set('playerId', 'oops')
+      const res2 = await deleteTournamentPlayer(fd2) as any
+      expect(res2.message).toMatch(/invalid tournament or player id/i)
+    })
+
+    it('deletes the player and redirects back to teams page', async () => {
+      const { deleteTournamentPlayer } = await import('@/app/setup/action')
+      const fd = new FormData()
+      fd.set('tournamentId', '7')
+      fd.set('playerId', '5')
+
+      await deleteTournamentPlayer(fd)
+
+      expect(h.prisma.player.deleteMany).toHaveBeenCalledWith({ where: { id: 5, tournamentId: 7 } })
+      expect(h.redirect).toHaveBeenCalledWith('/setup/teams/7')
+    })
+  })
+
   describe('assignTournamentTeams', () => {
     it('returns message when tournamentId missing or invalid', async () => {
       const { assignTournamentTeams } = await import('@/app/setup/action')
@@ -163,7 +195,11 @@ describe('setup actions', () => {
 
       await assignTournamentTeams({ tournamentId: '12' }, fd)
 
-      expect(h.tx.player.deleteMany).toHaveBeenCalledWith({ where: { id: { in: [10] }, tournamentId: 12 } })
+      // Removed players should be set to null, not deleted
+      expect(h.tx.player.updateMany).toHaveBeenCalledWith({ where: { id: { in: [10] }, tournamentId: 12 }, data: { groupNumber: null } })
+      // Unassigned players (not in assignments) should be cleared as well
+      expect(h.tx.player.updateMany).toHaveBeenCalledWith({ where: { tournamentId: 12, id: { notIn: [1, 2, 3] } }, data: { groupNumber: null } })
+      // Assigned players should be updated to their group numbers
       expect(h.tx.player.updateMany).toHaveBeenCalledWith({ where: { id: 1, tournamentId: 12 }, data: { groupNumber: 1 } })
       expect(h.tx.player.updateMany).toHaveBeenCalledWith({ where: { id: 2, tournamentId: 12 }, data: { groupNumber: 2 } })
       expect(h.tx.player.updateMany).toHaveBeenCalledWith({ where: { id: 3, tournamentId: 12 }, data: { groupNumber: 3 } })

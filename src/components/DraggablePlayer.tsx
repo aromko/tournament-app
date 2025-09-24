@@ -1,10 +1,10 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Player } from "@/app/setup/teams/[id]/TeamsAssignment";
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 
- type DraggablePlayerProps = { player: Player; onRemove?: () => void };
+ type DraggablePlayerProps = { player: Player; onRemove?: () => void; actionEl?: ReactNode };
 
-export const DraggablePlayer: FC<DraggablePlayerProps> = ({ player, onRemove }) => {
+export const DraggablePlayer: FC<DraggablePlayerProps> = ({ player, onRemove, actionEl }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: player.id,
   });
@@ -20,7 +20,20 @@ export const DraggablePlayer: FC<DraggablePlayerProps> = ({ player, onRemove }) 
       style={style}
     >
       <span className="truncate">{player.name}</span>
-      {onRemove ? (
+      {actionEl ? (
+        <div
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+        >
+          {actionEl}
+        </div>
+      ) : onRemove ? (
         <button
           type="button"
           onPointerDown={(e) => {

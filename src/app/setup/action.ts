@@ -192,9 +192,11 @@ export async function assignTournamentTeams(
 
   try {
     await prisma.$transaction(async (tx) => {
+      // Clear assignments for explicitly removed players (do NOT delete players)
       if (removedIds.length > 0) {
-        await tx.player.deleteMany({
+        await tx.player.updateMany({
           where: { id: { in: removedIds }, tournamentId },
+          data: { groupNumber: null },
         });
       }
 
@@ -211,6 +213,16 @@ export async function assignTournamentTeams(
         }
       }
 
+      // First, clear groupNumber for all players that are not part of the submitted assignments
+      const assignedIds = assignments.map((a) => a.id);
+      await tx.player.updateMany({
+        where: assignedIds.length
+          ? { tournamentId, id: { notIn: assignedIds } }
+          : { tournamentId },
+        data: { groupNumber: null },
+      });
+
+      // Then, apply the submitted assignments
       if (assignments.length > 0) {
         for (const a of assignments) {
           await tx.player.updateMany({
@@ -238,4 +250,24 @@ export async function assignTournamentTeams(
   }
 
   redirect("/");
+}
+
+
+export async function deleteTournamentPlayer(formData: FormData) {
+  const rawTid = formData.get("tournamentId");
+  const rawPid = formData.get("playerId");
+  const tournamentId = typeof rawTid === "string" ? parseInt(rawTid, 10) : NaN;
+  const playerId = typeof rawPid === "string" ? parseInt(rawPid, 10) : NaN;
+
+  if (!Number.isFinite(tournamentId) || !Number.isFinite(playerId)) {
+    return { message: "Invalid tournament or player ID" };
+  }
+
+  try {
+    await prisma.player.deleteMany({ where: { id: playerId, tournamentId } });
+  } catch (e) {
+    return { message: `Failed to delete player: ${e instanceof Error ? e.message : e}` };
+  }
+
+  redirect(`/setup/teams/${tournamentId}`);
 }
