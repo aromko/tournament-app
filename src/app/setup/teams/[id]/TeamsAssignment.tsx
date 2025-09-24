@@ -274,8 +274,11 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
             <DropdownMenuContent align="start" className="min-w-28">
               <DropdownMenuItem asChild disabled={isPending || !canContinue}>
                 <button
-                  type="submit"
-                  form="teamForm"
+                  type="button"
+                  onClick={() => {
+                    const form = document.getElementById('teamForm') as HTMLFormElement | null
+                    form?.requestSubmit()
+                  }}
                   aria-disabled={isPending || !canContinue}
                   disabled={isPending || !canContinue}
                 >
