@@ -17,8 +17,7 @@ function getUnassignedContainer() {
   // The unassigned column is labeled by a heading "Players"
   const heading = screen.getByRole('heading', { name: /players/i })
   // The container is the next sibling div following the heading inside DroppableColumn
-  const parent = heading.parentElement as HTMLElement
-  return parent
+  return heading.parentElement as HTMLElement
 }
 
 describe('TeamsAssignment component', () => {

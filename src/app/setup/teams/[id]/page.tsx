@@ -22,6 +22,7 @@ export default async function TeamsPage({
   const players: Player[] = dbPlayers.map((p) => ({
     id: String(p.id),
     name: p.name,
+    groupNumber: p.groupNumber ?? null,
   }));
 
   return (

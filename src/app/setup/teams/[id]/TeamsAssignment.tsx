@@ -17,7 +17,7 @@ import { assignTournamentTeams } from "@/app/setup/action";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 
-export type Player = { id: string; name: string };
+export type Player = { id: string; name: string; groupNumber?: number | null };
 export const UNASSIGNED_ID = "unassigned" as const;
 
 export default function TeamsAssignment({ players }: { players: Player[] }) {

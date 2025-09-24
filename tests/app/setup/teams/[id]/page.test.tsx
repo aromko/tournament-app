@@ -59,8 +59,8 @@ describe('TeamsPage (/setup/teams/[id])', () => {
     // parse props from rendered JSON text
     const props = JSON.parse(node.textContent || '{}')
     expect(props.players).toEqual([
-      { id: '1', name: 'Alice' },
-      { id: '2', name: 'Bob' },
+      { id: '1', name: 'Alice', groupNumber: null },
+      { id: '2', name: 'Bob', groupNumber: null },
     ])
   })
 })

@@ -20,8 +20,19 @@ export function buildInitialState(
   count: number,
   unassignedId: typeof UNASSIGNED_ID,
 ): ContainersState {
-  const base: ContainersState = { [unassignedId]: list.map((p) => p.id) };
+  // Prepare containers for all groups and unassigned
+  const base: ContainersState = { [unassignedId]: [] } as ContainersState;
   for (let i = 1; i <= count; i++) base[`group-${i}`] = [];
+
+  // Place players into their group when a valid groupNumber exists; otherwise unassigned
+  for (const p of list) {
+    const g = Number(p.groupNumber);
+    if (Number.isFinite(g) && g >= 1 && g <= count) {
+      base[`group-${g}`].push(p.id);
+    } else {
+      base[unassignedId].push(p.id);
+    }
+  }
 
   return base;
 }
