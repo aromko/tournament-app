@@ -2,7 +2,12 @@ import { getTournaments } from "@/prisma/db";
 import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import RegisterPlayerDialog from "@/app/overview/RegisterPlayerDialog";
 
@@ -33,15 +38,17 @@ export default async function OverviewPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {tournament.started ? (
-                      <DropdownMenuItem>View</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/tournament/${tournament.id}`}>View</Link>
+                      </DropdownMenuItem>
                     ) : (
                       <>
                         <RegisterPlayerDialog tournamentId={tournament.id} tournamentName={tournament.name} />
                         <DropdownMenuItem asChild>
-                          <Link href={`/setup/teams/${tournament.id}`}>Setup</Link>
+                          <Link role="menuitem" href={`/setup/teams/${tournament.id}`}>Setup</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild className="bg-green-50 text-green-700 hover:bg-green-100 focus:bg-green-100">
-                          <Link href={`/setup`}>Start</Link>
+                          <Link role="menuitem" href={`/setup`}>Start</Link>
                         </DropdownMenuItem>
                       </>
                     )}

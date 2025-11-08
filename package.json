@@ -11,6 +11,8 @@
     "format": "prettier --write \"**/*\"",
     "typecheck": "tsc --noEmit",
     "startup": "prisma generate --schema=src/prisma/schema.prisma && pnpm dev",
+    "db:sync": "cd src/prisma && prisma db push",
+    "db:reset": "cd src/prisma && npx prisma migrate reset --",
     "test": "vitest run",
     "test:coverage": "pnpm test -- --coverage",
     "test:watch": "vitest"
