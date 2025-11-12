@@ -253,6 +253,75 @@ export async function assignTournamentTeams(
 }
 
 
+// Extracted core logic so it can be reused from an API route or other server code
+export async function performStartTournament(tournamentId: number): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    // Load tournament and players
+    const tournament = await tx.tournament.findUnique({
+      where: { id: tournamentId },
+      select: { id: true, numberOfGroups: true, started: true },
+    });
+    if (!tournament) throw new Error("Tournament not found");
+
+    // Determine valid number of groups
+    let numberOfGroups = tournament.numberOfGroups ?? 2;
+    if (!Number.isFinite(numberOfGroups) || numberOfGroups < 1) numberOfGroups = 2;
+
+    const players = await tx.player.findMany({
+      where: { tournamentId },
+      select: { id: true, groupNumber: true },
+      orderBy: { id: "asc" },
+    });
+
+    if (players.length === 0) {
+      throw new Error("Cannot start: no players in the tournament.");
+    }
+
+    // Build current counts and list of unassigned players
+    const counts = Array.from({ length: numberOfGroups }, () => 0);
+    const unassigned: number[] = [];
+    for (const p of players) {
+      if (p.groupNumber == null) {
+        unassigned.push(p.id);
+      } else if (
+        Number.isFinite(p.groupNumber) &&
+        p.groupNumber! >= 1 &&
+        p.groupNumber! <= numberOfGroups
+      ) {
+        counts[p.groupNumber! - 1]++;
+      } else {
+        // Out-of-range assignments are treated as unassigned
+        unassigned.push(p.id);
+      }
+    }
+
+    // Helper to find the index of the group with the minimal count
+    const pickGroup = () => {
+      let minIdx = 0;
+      for (let i = 1; i < counts.length; i++) {
+        if (counts[i] < counts[minIdx]) minIdx = i;
+      }
+      counts[minIdx]++;
+      return minIdx + 1; // group numbers are 1-based
+    };
+
+    // Assign all unassigned players to balance groups
+    for (const playerId of unassigned) {
+      const groupNumber = pickGroup();
+      await tx.player.update({
+        where: { id: playerId },
+        data: { groupNumber },
+      });
+    }
+
+    // Finally, mark tournament as started
+    await tx.tournament.update({
+      where: { id: tournamentId },
+      data: { started: true, numberOfGroups },
+    });
+  });
+}
+
 export async function deleteTournamentPlayer(formData: FormData) {
   const rawTid = formData.get("tournamentId");
   const rawPid = formData.get("playerId");
