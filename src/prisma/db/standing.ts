@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 
+type TransactionClient = Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">;
+
 export type StandingRow = {
   id: number;
   tournamentId: number;
@@ -23,7 +25,7 @@ export async function getStandingsByTournamentId(tournamentId: number): Promise<
 
 export async function ensureStandingsForTournament(tournamentId: number): Promise<void> {
   // Ensure there is a standing row per player in the tournament and initialize default ranks
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     const players = await tx.player.findMany({ where: { tournamentId }, select: { id: true, groupNumber: true } });
     if (players.length === 0) return;
 
@@ -31,12 +33,12 @@ export async function ensureStandingsForTournament(tournamentId: number): Promis
     const gs = ((tx as any).groupStanding ?? (prisma as any).groupStanding) as any;
 
     const existing = await gs.findMany({ where: { tournamentId }, select: { playerId: true } });
-    const existingSet = new Set(existing.map((e: any) => e.playerId));
+    const existingSet = new Set(existing.map((e: { playerId: number }) => e.playerId));
 
-    const toCreate = players.filter((p) => !existingSet.has(p.id));
+    const toCreate = players.filter((p: { id: number }) => !existingSet.has(p.id));
     if (toCreate.length > 0) {
       await gs.createMany({
-        data: toCreate.map((p) => ({
+        data: toCreate.map((p: { id: number; groupNumber: number | null }) => ({
           tournamentId,
           playerId: p.id,
           groupNumber: p.groupNumber ?? 1,

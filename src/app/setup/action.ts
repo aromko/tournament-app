@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+type TransactionClient = Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">;
+
 const tournamentSchema = z.object({
   name: z.string().min(2, "Tournament name must be at least 2 characters"),
   players: z.number().min(4).max(32),
@@ -106,7 +108,7 @@ export async function createTournamentPlayers(
     .map((x) => x.name);
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const existing = await tx.player.findMany({
         where: { tournamentId },
         orderBy: { id: "asc" },
@@ -128,7 +130,7 @@ export async function createTournamentPlayers(
 
       // If fewer names submitted than existing players, remove the extras
       if (existing.length > submittedNames.length) {
-        const toDelete = existing.slice(submittedNames.length).map((p) => p.id);
+        const toDelete = existing.slice(submittedNames.length).map((p: { id: number }) => p.id);
         if (toDelete.length > 0) {
           await tx.player.deleteMany({ where: { id: { in: toDelete }, tournamentId } });
         }
@@ -191,7 +193,7 @@ export async function assignTournamentTeams(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       // Clear assignments for explicitly removed players (do NOT delete players)
       if (removedIds.length > 0) {
         await tx.player.updateMany({
@@ -255,7 +257,7 @@ export async function assignTournamentTeams(
 
 // Extracted core logic so it can be reused from an API route or other server code
 export async function performStartTournament(tournamentId: number): Promise<void> {
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     // Load tournament and players
     const tournament = await tx.tournament.findUnique({
       where: { id: tournamentId },
@@ -322,20 +324,20 @@ export async function performStartTournament(tournamentId: number): Promise<void
   });
 }
 
-export async function deleteTournamentPlayer(formData: FormData) {
+export async function deleteTournamentPlayer(formData: FormData): Promise<void> {
   const rawTid = formData.get("tournamentId");
   const rawPid = formData.get("playerId");
   const tournamentId = typeof rawTid === "string" ? parseInt(rawTid, 10) : NaN;
   const playerId = typeof rawPid === "string" ? parseInt(rawPid, 10) : NaN;
 
   if (!Number.isFinite(tournamentId) || !Number.isFinite(playerId)) {
-    return { message: "Invalid tournament or player ID" };
+    throw new Error("Invalid tournament or player ID");
   }
 
   try {
     await prisma.player.deleteMany({ where: { id: playerId, tournamentId } });
   } catch (e) {
-    return { message: `Failed to delete player: ${e instanceof Error ? e.message : e}` };
+    throw new Error(`Failed to delete player: ${e instanceof Error ? e.message : e}`);
   }
 
   redirect(`/setup/teams/${tournamentId}`);

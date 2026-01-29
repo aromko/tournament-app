@@ -2,10 +2,8 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextPlugin from "@next/eslint-plugin-next";
 import reactHooks from "eslint-plugin-react-hooks";
-
-const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 
 export default [
   { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
@@ -13,11 +11,18 @@ export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
-  ...compat.config({ extends: ["plugin:@next/next/core-web-vitals"] }),
+  {
+    plugins: {
+      "@next/next": nextPlugin,
+    },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+    },
+  },
   {
     settings: { react: { version: "detect" } },
     rules: { "react/jsx-uses-react": "off", "react/react-in-jsx-scope": "off" },
   },
   reactHooks.configs.flat.recommended,
 ];
-
