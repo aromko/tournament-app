@@ -5,11 +5,27 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 // Hoist a shared mock so both the mocked module and tests use the same fn reference
 const h = vi.hoisted(() => ({
   getTournaments: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  })),
 }))
 
 vi.mock('@/prisma/db', () => ({
   getTournaments: h.getTournaments,
 }))
+
+vi.mock('next/navigation', async () => {
+  const actual = await vi.importActual<typeof import('next/navigation')>('next/navigation')
+  return {
+    ...actual,
+    useRouter: h.useRouter,
+  }
+})
 
 describe('OverviewPage (/overview)', () => {
   beforeEach(() => {
@@ -104,10 +120,11 @@ describe('OverviewPage (/overview)', () => {
     const actionsBtn = screen.getByRole('button', { name: /Actions for Championship Finals/i })
     await userEvent.click(actionsBtn)
 
-    // Only View should be present
-    expect(await screen.findByRole('menuitem', { name: /View/i })).toBeInTheDocument()
-    expect(screen.queryByRole('menuitem', { name: /Register/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('menuitem', { name: /Setup/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('menuitem', { name: /Start/i })).not.toBeInTheDocument()
+    // Only View should be present (Link is inside a menuitem wrapper)
+    expect(await screen.findByRole('link', { name: /View/i })).toBeInTheDocument()
+    expect(screen.queryByText(/Register/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Setup/i })).not.toBeInTheDocument()
+    // Use exact text match to avoid matching "Started" status
+    expect(screen.queryByText(/^Start$/)).not.toBeInTheDocument()
   })
 })

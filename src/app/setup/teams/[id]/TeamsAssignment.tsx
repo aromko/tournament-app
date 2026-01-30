@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { DndContext } from "@dnd-kit/core";
-import React, { useActionState, useMemo, useState } from "react";
+import React, { useActionState, useCallback, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { DraggablePlayer } from "@/components/DraggablePlayer";
 import { DroppableColumn } from "@/components/DroppableColumn";
@@ -65,7 +65,7 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
   const hasPlayers = players.length > 0;
   const canContinue = hasPlayers && unassignedCount === 0;
 
-  const handleRemove = (pid: string) => {
+  const handleRemove = useCallback((pid: string) => {
     setContainers((prev) => {
       const next: ContainersState = { ...prev };
       // Remove from all containers first
@@ -82,9 +82,9 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
       next.add(pid);
       return next;
     });
-  };
+  }, []);
 
-  const handleAddGroup = () => {
+  const handleAddGroup = useCallback(() => {
     setGroupCountState((prev) => {
       const next = Math.min(prev + 1, 16);
       setContainers((prevC) => {
@@ -94,9 +94,9 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
       });
       return next;
     });
-  };
+  }, []);
 
-  const handleRemoveGroup = () => {
+  const handleRemoveGroup = useCallback(() => {
     // Find the highest existing group index
     setContainers((prev) => {
       let max = 0;
@@ -120,32 +120,33 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
       return next;
     });
     setGroupCountState((prev) => Math.max(1, prev - 1));
-  };
+  }, []);
 
-  const handleShuffle = () => {
-    // Gather all non-removed players currently in any container
-    const all: string[] = [];
-    for (const [cid, list] of Object.entries(containers)) {
-      if (cid === UNASSIGNED_ID || cid.startsWith("group-")) {
-        all.push(...list);
+  const handleShuffle = useCallback(() => {
+    setContainers((prevContainers) => {
+      // Gather all non-removed players currently in any container
+      const all: string[] = [];
+      for (const [cid, list] of Object.entries(prevContainers)) {
+        if (cid === UNASSIGNED_ID || cid.startsWith("group-")) {
+          all.push(...list);
+        }
       }
-    }
-    // Shuffle players
-    for (let i = all.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [all[i], all[j]] = [all[j], all[i]];
-    }
+      // Shuffle players
+      for (let i = all.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [all[i], all[j]] = [all[j], all[i]];
+      }
 
-    const ids = groupIds;
-    const next: ContainersState = { [UNASSIGNED_ID]: [] } as ContainersState;
-    for (const gid of ids) next[gid] = [];
-    all.forEach((pid, idx) => {
-      const gid = ids[idx % ids.length];
-      next[gid].push(pid);
+      const next: ContainersState = { [UNASSIGNED_ID]: [] } as ContainersState;
+      for (const gid of groupIds) next[gid] = [];
+      all.forEach((pid, idx) => {
+        const gid = groupIds[idx % groupIds.length];
+        next[gid].push(pid);
+      });
+
+      return next;
     });
-
-    setContainers(next);
-  };
+  }, [groupIds]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 grid gap-6 grid-cols-8 items-start">

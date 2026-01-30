@@ -62,15 +62,18 @@ export async function ensureStandingsForTournament(tournamentId: number): Promis
         (byGroup.get(g) as any).push(row);
       }
 
+      // Batch all rank updates in parallel
+      const updates: Promise<unknown>[] = [];
       for (const [_, list] of byGroup) {
         (list as any[]).sort((a: any, b: any) => a.player.name.localeCompare(b.player.name));
         for (let i = 0; i < list.length; i++) {
           const row = list[i] as any;
           if (row.rank == null) {
-            await gs.update({ where: { id: row.id }, data: { rank: i + 1 } });
+            updates.push(gs.update({ where: { id: row.id }, data: { rank: i + 1 } }));
           }
         }
       }
+      await Promise.all(updates);
     }
   });
 }

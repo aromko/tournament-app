@@ -114,18 +114,26 @@ export async function createTournamentPlayers(
         orderBy: { id: "asc" },
       });
 
-      // Update or create to match submitted names
+      // Update or create to match submitted names (batch operations in parallel)
+      const updateOps: Promise<unknown>[] = [];
+      const createOps: { name: string; tournamentId: number }[] = [];
+
       for (let i = 0; i < submittedNames.length; i++) {
         const name = submittedNames[i];
         if (!name) continue; // inputs are required, but guard anyway
         const current = existing[i];
         if (current) {
           if (current.name !== name) {
-            await tx.player.update({ where: { id: current.id }, data: { name } });
+            updateOps.push(tx.player.update({ where: { id: current.id }, data: { name } }));
           }
         } else {
-          await tx.player.create({ data: { name, tournamentId } });
+          createOps.push({ name, tournamentId });
         }
+      }
+
+      await Promise.all(updateOps);
+      if (createOps.length > 0) {
+        await tx.player.createMany({ data: createOps });
       }
 
       // If fewer names submitted than existing players, remove the extras
@@ -224,14 +232,16 @@ export async function assignTournamentTeams(
         data: { groupNumber: null },
       });
 
-      // Then, apply the submitted assignments
+      // Then, apply the submitted assignments (batch in parallel)
       if (assignments.length > 0) {
-        for (const a of assignments) {
-          await tx.player.updateMany({
-            where: { id: a.id, tournamentId },
-            data: { groupNumber: a.groupNumber },
-          });
-        }
+        await Promise.all(
+          assignments.map((a) =>
+            tx.player.updateMany({
+              where: { id: a.id, tournamentId },
+              data: { groupNumber: a.groupNumber },
+            })
+          )
+        );
       }
 
       // Update tournament: on open registration keep started=false, otherwise set started=true; always persist numberOfGroups if provided
@@ -307,14 +317,20 @@ export async function performStartTournament(tournamentId: number): Promise<void
       return minIdx + 1; // group numbers are 1-based
     };
 
-    // Assign all unassigned players to balance groups
-    for (const playerId of unassigned) {
-      const groupNumber = pickGroup();
-      await tx.player.update({
-        where: { id: playerId },
-        data: { groupNumber },
-      });
-    }
+    // Assign all unassigned players to balance groups (prepare assignments, then batch)
+    const playerAssignments = unassigned.map((playerId) => ({
+      playerId,
+      groupNumber: pickGroup(),
+    }));
+
+    await Promise.all(
+      playerAssignments.map(({ playerId, groupNumber }) =>
+        tx.player.update({
+          where: { id: playerId },
+          data: { groupNumber },
+        })
+      )
+    );
 
     // Finally, mark tournament as started
     await tx.tournament.update({

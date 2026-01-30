@@ -18,6 +18,7 @@ const h = vi.hoisted(() => ({
       update: vi.fn(),
       updateMany: vi.fn(),
       create: vi.fn(),
+      createMany: vi.fn(),
       deleteMany: vi.fn(),
     },
     tournament: {
@@ -136,7 +137,7 @@ describe('setup actions', () => {
       await createTournamentPlayers({ tournamentId: '9' }, fd)
 
       expect(h.tx.player.update).toHaveBeenCalledWith({ where: { id: 2 }, data: { name: 'Bobby' } })
-      expect(h.tx.player.create).toHaveBeenCalledWith({ data: { name: 'Cara', tournamentId: 9 } })
+      expect(h.tx.player.createMany).toHaveBeenCalledWith({ data: [{ name: 'Cara', tournamentId: 9 }] })
       // No deleteMany since we added one
       expect(h.tx.player.deleteMany).not.toHaveBeenCalled()
       expect(h.redirect).toHaveBeenCalledWith('/setup/teams/9')
