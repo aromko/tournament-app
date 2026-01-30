@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: true
+      POSTGRES_PRISMA_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
     steps:
       # Setup
       - uses: actions/checkout@v5.0.0
