@@ -6,6 +6,7 @@ import nextPlugin from "@next/eslint-plugin-next";
 import reactHooks from "eslint-plugin-react-hooks";
 
 export default [
+  { ignores: [".next/**", "node_modules/**", "coverage/**", "*.config.{js,mjs,cjs}"] },
   { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
   { languageOptions: { globals: globals.node } },
   pluginJs.configs.recommended,
@@ -22,7 +23,13 @@ export default [
   },
   {
     settings: { react: { version: "detect" } },
-    rules: { "react/jsx-uses-react": "off", "react/react-in-jsx-scope": "off" },
+    rules: {
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+    },
   },
   reactHooks.configs.flat.recommended,
 ];

@@ -13,12 +13,16 @@ import Link from "next/link";
 export default function PlayerPage() {
   const tournamentId = NextNavigation.useParams().id as string;
   const playersParam = NextNavigation.useSearchParams().get("p");
-  if (!playersParam) {
-    return <NotFound />;
-  }
 
-  const [players, setPlayers] = useState(parseInt(playersParam));
+  const [players, setPlayers] = useState(() => playersParam ? parseInt(playersParam) : 0);
   const [prefill, setPrefill] = useState<string[]>([]);
+
+  const [error, formAction, isPending] = React.useActionState(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    createTournamentPlayers,
+    { tournamentId },
+  );
 
   useEffect(() => {
     let ignore = false;
@@ -45,14 +49,11 @@ export default function PlayerPage() {
     };
   }, [tournamentId]);
 
-  const renderPlayerComponent = Array.from({ length: players });
+  if (!playersParam) {
+    return <NotFound />;
+  }
 
-  const [error, formAction, isPending] = React.useActionState(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    createTournamentPlayers,
-    { tournamentId },
-  );
+  const renderPlayerComponent = Array.from({ length: players });
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
