@@ -1,9 +1,15 @@
-"type:feature":
-  - changed-files:
-      - any-glob-to-any-file: src/*
-      - any-glob-to-any-file: src/**/*
+name: Labeler
 
-"type:infrastructure":
-  - changed-files:
-      - any-glob-to-any-file: .github/*
-      - any-glob-to-any-file: .github/**/*
+on: pull_request
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

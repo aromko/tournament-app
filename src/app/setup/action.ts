@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+type TransactionClient = Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">;
+
 const tournamentSchema = z.object({
   name: z.string().min(2, "Tournament name must be at least 2 characters"),
   players: z.number().min(4).max(32),
@@ -106,29 +108,37 @@ export async function createTournamentPlayers(
     .map((x) => x.name);
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const existing = await tx.player.findMany({
         where: { tournamentId },
         orderBy: { id: "asc" },
       });
 
-      // Update or create to match submitted names
+      // Update or create to match submitted names (batch operations in parallel)
+      const updateOps: Promise<unknown>[] = [];
+      const createOps: { name: string; tournamentId: number }[] = [];
+
       for (let i = 0; i < submittedNames.length; i++) {
         const name = submittedNames[i];
         if (!name) continue; // inputs are required, but guard anyway
         const current = existing[i];
         if (current) {
           if (current.name !== name) {
-            await tx.player.update({ where: { id: current.id }, data: { name } });
+            updateOps.push(tx.player.update({ where: { id: current.id }, data: { name } }));
           }
         } else {
-          await tx.player.create({ data: { name, tournamentId } });
+          createOps.push({ name, tournamentId });
         }
+      }
+
+      await Promise.all(updateOps);
+      if (createOps.length > 0) {
+        await tx.player.createMany({ data: createOps });
       }
 
       // If fewer names submitted than existing players, remove the extras
       if (existing.length > submittedNames.length) {
-        const toDelete = existing.slice(submittedNames.length).map((p) => p.id);
+        const toDelete = existing.slice(submittedNames.length).map((p: { id: number }) => p.id);
         if (toDelete.length > 0) {
           await tx.player.deleteMany({ where: { id: { in: toDelete }, tournamentId } });
         }
@@ -191,7 +201,7 @@ export async function assignTournamentTeams(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       // Clear assignments for explicitly removed players (do NOT delete players)
       if (removedIds.length > 0) {
         await tx.player.updateMany({
@@ -222,14 +232,16 @@ export async function assignTournamentTeams(
         data: { groupNumber: null },
       });
 
-      // Then, apply the submitted assignments
+      // Then, apply the submitted assignments (batch in parallel)
       if (assignments.length > 0) {
-        for (const a of assignments) {
-          await tx.player.updateMany({
-            where: { id: a.id, tournamentId },
-            data: { groupNumber: a.groupNumber },
-          });
-        }
+        await Promise.all(
+          assignments.map((a) =>
+            tx.player.updateMany({
+              where: { id: a.id, tournamentId },
+              data: { groupNumber: a.groupNumber },
+            })
+          )
+        );
       }
 
       // Update tournament: on open registration keep started=false, otherwise set started=true; always persist numberOfGroups if provided
@@ -255,7 +267,7 @@ export async function assignTournamentTeams(
 
 // Extracted core logic so it can be reused from an API route or other server code
 export async function performStartTournament(tournamentId: number): Promise<void> {
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     // Load tournament and players
     const tournament = await tx.tournament.findUnique({
       where: { id: tournamentId },
@@ -305,14 +317,20 @@ export async function performStartTournament(tournamentId: number): Promise<void
       return minIdx + 1; // group numbers are 1-based
     };
 
-    // Assign all unassigned players to balance groups
-    for (const playerId of unassigned) {
-      const groupNumber = pickGroup();
-      await tx.player.update({
-        where: { id: playerId },
-        data: { groupNumber },
-      });
-    }
+    // Assign all unassigned players to balance groups (prepare assignments, then batch)
+    const playerAssignments = unassigned.map((playerId) => ({
+      playerId,
+      groupNumber: pickGroup(),
+    }));
+
+    await Promise.all(
+      playerAssignments.map(({ playerId, groupNumber }) =>
+        tx.player.update({
+          where: { id: playerId },
+          data: { groupNumber },
+        })
+      )
+    );
 
     // Finally, mark tournament as started
     await tx.tournament.update({
@@ -322,20 +340,20 @@ export async function performStartTournament(tournamentId: number): Promise<void
   });
 }
 
-export async function deleteTournamentPlayer(formData: FormData) {
+export async function deleteTournamentPlayer(formData: FormData): Promise<void> {
   const rawTid = formData.get("tournamentId");
   const rawPid = formData.get("playerId");
   const tournamentId = typeof rawTid === "string" ? parseInt(rawTid, 10) : NaN;
   const playerId = typeof rawPid === "string" ? parseInt(rawPid, 10) : NaN;
 
   if (!Number.isFinite(tournamentId) || !Number.isFinite(playerId)) {
-    return { message: "Invalid tournament or player ID" };
+    throw new Error("Invalid tournament or player ID");
   }
 
   try {
     await prisma.player.deleteMany({ where: { id: playerId, tournamentId } });
   } catch (e) {
-    return { message: `Failed to delete player: ${e instanceof Error ? e.message : e}` };
+    throw new Error(`Failed to delete player: ${e instanceof Error ? e.message : e}`);
   }
 
   redirect(`/setup/teams/${tournamentId}`);

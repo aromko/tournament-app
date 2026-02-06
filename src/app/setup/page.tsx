@@ -21,6 +21,7 @@ function SetupPageInner() {
   const [state, formAction, isPending] = useActionState(createTournament, null);
   const searchParams = useSearchParams();
   const editingId = searchParams.get("id");
+  const playersParam = searchParams.get("p");
 
   const [name, setName] = useState("");
   const [players, setPlayers] = useState<number>(4);
@@ -39,8 +40,7 @@ function SetupPageInner() {
         setEliminationType(data.eliminationType ?? "SINGLE");
         setNumberOfGroups(String(data.numberOfGroups ?? "2"));
         // players count is not stored on tournament; keep the default or allow overriding via query (?p=)
-        const qp = searchParams.get("p");
-        if (qp) setPlayers(parseInt(qp, 10));
+        if (playersParam) setPlayers(parseInt(playersParam, 10));
       } catch {
         // ignore errors for now
       }
@@ -51,7 +51,7 @@ function SetupPageInner() {
     return () => {
       ignore = true;
     };
-  }, [editingId, searchParams]);
+  }, [editingId, playersParam]);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">

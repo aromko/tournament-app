@@ -18,6 +18,7 @@ const h = vi.hoisted(() => ({
       update: vi.fn(),
       updateMany: vi.fn(),
       create: vi.fn(),
+      createMany: vi.fn(),
       deleteMany: vi.fn(),
     },
     tournament: {
@@ -136,7 +137,7 @@ describe('setup actions', () => {
       await createTournamentPlayers({ tournamentId: '9' }, fd)
 
       expect(h.tx.player.update).toHaveBeenCalledWith({ where: { id: 2 }, data: { name: 'Bobby' } })
-      expect(h.tx.player.create).toHaveBeenCalledWith({ data: { name: 'Cara', tournamentId: 9 } })
+      expect(h.tx.player.createMany).toHaveBeenCalledWith({ data: [{ name: 'Cara', tournamentId: 9 }] })
       // No deleteMany since we added one
       expect(h.tx.player.deleteMany).not.toHaveBeenCalled()
       expect(h.redirect).toHaveBeenCalledWith('/setup/teams/9')
@@ -144,19 +145,17 @@ describe('setup actions', () => {
   })
 
   describe('deleteTournamentPlayer', () => {
-    it('returns message when ids are invalid', async () => {
+    it('throws error when ids are invalid', async () => {
       const { deleteTournamentPlayer } = await import('@/app/setup/action')
       const fd = new FormData()
       fd.set('tournamentId', 'NaN')
       fd.set('playerId', '5')
-      const res1 = await deleteTournamentPlayer(fd) as any
-      expect(res1.message).toMatch(/invalid tournament or player id/i)
+      await expect(deleteTournamentPlayer(fd)).rejects.toThrow(/invalid tournament or player id/i)
 
       const fd2 = new FormData()
       fd2.set('tournamentId', '7')
       fd2.set('playerId', 'oops')
-      const res2 = await deleteTournamentPlayer(fd2) as any
-      expect(res2.message).toMatch(/invalid tournament or player id/i)
+      await expect(deleteTournamentPlayer(fd2)).rejects.toThrow(/invalid tournament or player id/i)
     })
 
     it('deletes the player and redirects back to teams page', async () => {

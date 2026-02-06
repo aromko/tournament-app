@@ -25,13 +25,3 @@ jobs:
         run: pnpm install
       - name: Generate Prisma Client
         run: pnpm prisma generate --schema=src/prisma/schema.prisma
-
-      # Action
-      - name: Run Test Coverage
-        run: npx vitest run --coverage
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: aromko/tournament-app
-          files: ./coverage/lcov.info

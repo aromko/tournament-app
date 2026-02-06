@@ -19,7 +19,7 @@ export default async function TeamsPage({
   }
 
   const dbPlayers = await getPlayersByTournamentId(tournamentId);
-  const players: Player[] = dbPlayers.map((p) => ({
+  const players: Player[] = dbPlayers.map((p: { id: number; name: string; groupNumber: number | null }) => ({
     id: String(p.id),
     name: p.name,
     groupNumber: p.groupNumber ?? null,
