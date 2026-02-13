@@ -1,9 +1,15 @@
-import { render } from '@testing-library/react'
-import React from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { render } from "@testing-library/react";
+import React from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-describe('Select UI primitive (smoke)', () => {
-  it('renders trigger and content structure', () => {
+describe("Select UI primitive (smoke)", () => {
+  it("renders trigger and content structure", () => {
     const { container } = render(
       <Select>
         <SelectTrigger>
@@ -13,9 +19,9 @@ describe('Select UI primitive (smoke)', () => {
           <SelectItem value="a">A</SelectItem>
           <SelectItem value="b">B</SelectItem>
         </SelectContent>
-      </Select>
-    )
+      </Select>,
+    );
     // Ensure elements are created in the DOM (portals may not be attached)
-    expect(container).toBeTruthy()
-  })
-})
+    expect(container).toBeTruthy();
+  });
+});

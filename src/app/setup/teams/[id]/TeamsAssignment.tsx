@@ -4,29 +4,46 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DndContext } from "@dnd-kit/core";
 import React, { useActionState, useCallback, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { DraggablePlayer } from "@/components/DraggablePlayer";
 import { DroppableColumn } from "@/components/DroppableColumn";
-import { type ContainersState, useHandleDragEnd } from "@/hooks/useHandleDragEnd";
+import {
+  type ContainersState,
+  useHandleDragEnd,
+} from "@/hooks/useHandleDragEnd";
 import { buildGroupIds, buildInitialState, parseGroupCount } from "@/lib/utils";
-import { assignTournamentTeams, deleteTournamentPlayer } from "@/app/setup/action";
+import {
+  assignTournamentTeams,
+  deleteTournamentPlayer,
+} from "@/app/setup/action";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 
 export type Player = { id: string; name: string; groupNumber?: number | null };
 export const UNASSIGNED_ID = "unassigned" as const;
 
-export default function TeamsAssignment({ players, tournamentId: tournamentIdProp, initialGroupCount }: { players: Player[]; tournamentId?: string; initialGroupCount?: number }) {
+export default function TeamsAssignment({
+  players,
+  tournamentId: tournamentIdProp,
+  initialGroupCount,
+}: {
+  players: Player[];
+  tournamentId?: string;
+  initialGroupCount?: number;
+}) {
   const searchParams = useSearchParams();
   const params = useParams();
   const tournamentId = tournamentIdProp ?? String((params as any)?.id ?? "");
 
   const groupCount = useMemo(
-    () => (typeof initialGroupCount === "number" ? initialGroupCount : parseGroupCount(searchParams)),
+    () =>
+      typeof initialGroupCount === "number"
+        ? initialGroupCount
+        : parseGroupCount(searchParams),
     [initialGroupCount, searchParams],
   );
 
@@ -45,9 +62,15 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
     () => Object.fromEntries(players.map((p) => [p.id, p])),
     [players],
   );
-  const groupIds = useMemo(() => buildGroupIds(groupCountState), [groupCountState]);
+  const groupIds = useMemo(
+    () => buildGroupIds(groupCountState),
+    [groupCountState],
+  );
 
-  const gridColumnCount = useMemo(() => Math.min(groupCountState, 2), [groupCountState]);
+  const gridColumnCount = useMemo(
+    () => Math.min(groupCountState, 2),
+    [groupCountState],
+  );
   const gridTemplateStyle = useMemo(
     () => ({
       gridTemplateColumns: `repeat(${gridColumnCount}, minmax(0, 1fr))`,
@@ -109,10 +132,7 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
       const toMove = prev[key] ?? [];
       const rest: Record<string, string[]> = { ...prev };
       delete rest[key];
-      const nextUnassigned = [
-        ...(prev[UNASSIGNED_ID] ?? []),
-        ...toMove,
-      ];
+      const nextUnassigned = [...(prev[UNASSIGNED_ID] ?? []), ...toMove];
       const next: ContainersState = {
         ...(rest as ContainersState),
         [UNASSIGNED_ID]: nextUnassigned,
@@ -161,9 +181,13 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
                 <DraggablePlayer
                   key={pid}
                   player={p}
-                  actionEl={(
+                  actionEl={
                     <form action={deleteTournamentPlayer}>
-                      <input type="hidden" name="tournamentId" value={tournamentId} />
+                      <input
+                        type="hidden"
+                        name="tournamentId"
+                        value={tournamentId}
+                      />
                       <input type="hidden" name="playerId" value={pid} />
                       <button
                         type="submit"
@@ -173,14 +197,18 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
                         Delete
                       </button>
                     </form>
-                  )}
+                  }
                 />
               );
             })}
           </DroppableColumn>
         </div>
         {/* Right: Groups grid */}
-        <form id="teamForm" action={formAction} className="col-span-8 lg:col-span-5 space-y-6">
+        <form
+          id="teamForm"
+          action={formAction}
+          className="col-span-8 lg:col-span-5 space-y-6"
+        >
           <div className="grid gap-4" style={gridTemplateStyle}>
             {groupIds.map((gid, idx) => (
               <DroppableColumn key={gid} id={gid} title={`Group ${idx + 1}`}>
@@ -189,8 +217,15 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
                   if (!p) return null;
                   return (
                     <React.Fragment key={pid}>
-                      <input type="hidden" name={`player_${pid}`} value={`${idx + 1}`} />
-                      <DraggablePlayer player={p} onRemove={() => handleRemove(pid)} />
+                      <input
+                        type="hidden"
+                        name={`player_${pid}`}
+                        value={`${idx + 1}`}
+                      />
+                      <DraggablePlayer
+                        player={p}
+                        onRemove={() => handleRemove(pid)}
+                      />
                     </React.Fragment>
                   );
                 })}
@@ -198,10 +233,19 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
             ))}
           </div>
           {/* Persist number of groups */}
-          <input type="hidden" name="numberOfGroups" value={`${groupCountState}`} />
+          <input
+            type="hidden"
+            name="numberOfGroups"
+            value={`${groupCountState}`}
+          />
           {/* Removed players markers */}
           {Array.from(removed).map((pid) => (
-            <input key={`removed-${pid}`} type="hidden" name={`removed_${pid}`} value="1" />
+            <input
+              key={`removed-${pid}`}
+              type="hidden"
+              name={`removed_${pid}`}
+              value="1"
+            />
           ))}
         </form>
       </DndContext>
@@ -246,8 +290,15 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
         </DropdownMenu>
       </div>
       <div className="w-full col-span-full grid grid-cols-1 md:grid-cols-5 gap-3">
-        <Button asChild type="button" variant="outline" className="w-full col-end-4">
-          <Link href={`/setup/player/${tournamentId}?p=${players.length}`}>Cancel</Link>
+        <Button
+          asChild
+          type="button"
+          variant="outline"
+          className="w-full col-end-4"
+        >
+          <Link href={`/setup/player/${tournamentId}?p=${players.length}`}>
+            Cancel
+          </Link>
         </Button>
         <div className="flex col-end-6 col-span-2 gap-2">
           <Button
@@ -277,8 +328,10 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
                 <button
                   type="button"
                   onClick={() => {
-                    const form = document.getElementById('teamForm') as HTMLFormElement | null
-                    form?.requestSubmit()
+                    const form = document.getElementById(
+                      "teamForm",
+                    ) as HTMLFormElement | null;
+                    form?.requestSubmit();
                   }}
                   aria-disabled={isPending || !canContinue}
                   disabled={isPending || !canContinue}
@@ -291,7 +344,9 @@ export default function TeamsAssignment({ players, tournamentId: tournamentIdPro
         </div>
       </div>
       {actionError?.message ? (
-        <div className="col-span-full text-red-600 text-sm">{actionError.message}</div>
+        <div className="col-span-full text-red-600 text-sm">
+          {actionError.message}
+        </div>
       ) : null}
     </div>
   );

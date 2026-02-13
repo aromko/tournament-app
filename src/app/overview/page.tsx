@@ -2,13 +2,20 @@ export const dynamic = "force-dynamic";
 
 import { getTournaments } from "@/prisma/db";
 import Link from "next/link";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import RegisterPlayerDialog from "@/app/overview/RegisterPlayerDialog";
@@ -28,36 +35,56 @@ export default async function OverviewPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {tournaments.map((tournament: { id: number; name: string; started?: boolean }) => (
-            <TableRow key={tournament.id}>
-              <TableCell className="font-medium">{tournament.name}</TableCell>
-              <TableCell>{tournament.started ? "Started" : "Not started"}</TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label={`Actions for ${tournament.name}`}>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {tournament.started ? (
-                      <DropdownMenuItem asChild>
-                        <Link href={`/tournament/${tournament.id}`}>View</Link>
-                      </DropdownMenuItem>
-                    ) : (
-                      <>
-                        <RegisterPlayerDialog tournamentId={tournament.id} tournamentName={tournament.name} />
+          {tournaments.map(
+            (tournament: { id: number; name: string; started?: boolean }) => (
+              <TableRow key={tournament.id}>
+                <TableCell className="font-medium">{tournament.name}</TableCell>
+                <TableCell>
+                  {tournament.started ? "Started" : "Not started"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Actions for ${tournament.name}`}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {tournament.started ? (
                         <DropdownMenuItem asChild>
-                          <Link role="menuitem" href={`/setup/teams/${tournament.id}`}>Setup</Link>
+                          <Link href={`/tournament/${tournament.id}`}>
+                            View
+                          </Link>
                         </DropdownMenuItem>
-                        <StartTournamentMenuItem tournamentId={tournament.id} />
-                      </>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+                      ) : (
+                        <>
+                          <RegisterPlayerDialog
+                            tournamentId={tournament.id}
+                            tournamentName={tournament.name}
+                          />
+                          <DropdownMenuItem asChild>
+                            <Link
+                              role="menuitem"
+                              href={`/setup/teams/${tournament.id}`}
+                            >
+                              Setup
+                            </Link>
+                          </DropdownMenuItem>
+                          <StartTournamentMenuItem
+                            tournamentId={tournament.id}
+                          />
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ),
+          )}
         </TableBody>
       </Table>
     </div>

@@ -1,9 +1,16 @@
-import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-describe('Card UI primitive (smoke + inline snapshot)', () => {
-  it('renders all subcomponents', () => {
+describe("Card UI primitive (smoke + inline snapshot)", () => {
+  it("renders all subcomponents", () => {
     const { container } = render(
       <Card data-testid="card">
         <CardHeader>
@@ -12,16 +19,18 @@ describe('Card UI primitive (smoke + inline snapshot)', () => {
         </CardHeader>
         <CardContent>Content</CardContent>
         <CardFooter>Footer</CardFooter>
-      </Card>
-    )
+      </Card>,
+    );
 
-    expect(screen.getByTestId('card')).toBeInTheDocument()
+    expect(screen.getByTestId("card")).toBeInTheDocument();
     expect({
-      title: container.querySelector('[data-slot="card-title"]')?.textContent ?? 'Title',
+      title:
+        container.querySelector('[data-slot="card-title"]')?.textContent ??
+        "Title",
       // shadcn primitives don't set data-slot for all; check text presence as a proxy
-      hasDescription: container.textContent?.includes('Description') ?? false,
-      hasContent: container.textContent?.includes('Content') ?? false,
-      hasFooter: container.textContent?.includes('Footer') ?? false,
+      hasDescription: container.textContent?.includes("Description") ?? false,
+      hasContent: container.textContent?.includes("Content") ?? false,
+      hasFooter: container.textContent?.includes("Footer") ?? false,
     }).toMatchInlineSnapshot(`
 {
   "hasContent": true,
@@ -29,6 +38,6 @@ describe('Card UI primitive (smoke + inline snapshot)', () => {
   "hasFooter": true,
   "title": "Title",
 }
-`)
-  })
-})
+`);
+  });
+});

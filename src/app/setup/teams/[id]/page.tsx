@@ -13,23 +13,32 @@ export default async function TeamsPage({
   const tournamentId = Number(id);
 
   // Guard: redirect if tournament was started
-  const t = await prisma.tournament.findUnique({ where: { id: tournamentId }, select: { started: true, numberOfGroups: true } });
+  const t = await prisma.tournament.findUnique({
+    where: { id: tournamentId },
+    select: { started: true, numberOfGroups: true },
+  });
   if (t?.started) {
     redirect("/");
   }
 
   const dbPlayers = await getPlayersByTournamentId(tournamentId);
-  const players: Player[] = dbPlayers.map((p: { id: number; name: string; groupNumber: number | null }) => ({
-    id: String(p.id),
-    name: p.name,
-    groupNumber: p.groupNumber ?? null,
-  }));
+  const players: Player[] = dbPlayers.map(
+    (p: { id: number; name: string; groupNumber: number | null }) => ({
+      id: String(p.id),
+      name: p.name,
+      groupNumber: p.groupNumber ?? null,
+    }),
+  );
 
   const initialGroupCount = t?.numberOfGroups ?? 2;
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <TeamsAssignment players={players} tournamentId={String(tournamentId)} initialGroupCount={initialGroupCount} />
+      <TeamsAssignment
+        players={players}
+        tournamentId={String(tournamentId)}
+        initialGroupCount={initialGroupCount}
+      />
     </Suspense>
   );
 }

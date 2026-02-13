@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -12,7 +19,10 @@ type Props = {
   tournamentName?: string;
 };
 
-export default function RegisterPlayerDialog({ tournamentId, tournamentName }: Props) {
+export default function RegisterPlayerDialog({
+  tournamentId,
+  tournamentName,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,11 +61,15 @@ export default function RegisterPlayerDialog({ tournamentId, tournamentName }: P
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {/* Prevent Radix DropdownMenu from handling select navigation */}
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Register</DropdownMenuItem>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          Register
+        </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Register Player{tournamentName ? ` — ${tournamentName}` : ""}</DialogTitle>
+          <DialogTitle>
+            Register Player{tournamentName ? ` — ${tournamentName}` : ""}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-2">
           <div className="grid gap-2">
@@ -70,10 +84,17 @@ export default function RegisterPlayerDialog({ tournamentId, tournamentName }: P
             />
           </div>
           {error ? (
-            <p role="alert" className="text-sm text-red-600">{error}</p>
+            <p role="alert" className="text-sm text-red-600">
+              {error}
+            </p>
           ) : null}
           <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} disabled={loading}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setOpen(false)}
+              disabled={loading}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

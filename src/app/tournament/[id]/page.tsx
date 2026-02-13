@@ -1,6 +1,17 @@
 import prisma from "@/lib/prisma";
-import { ensureStandingsForTournament, getStandingsByTournamentId, sortStandings } from "@/prisma/db/standing";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  ensureStandingsForTournament,
+  getStandingsByTournamentId,
+  sortStandings,
+} from "@/prisma/db/standing";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default async function TournamentPage({
   params,
@@ -32,48 +43,60 @@ export default async function TournamentPage({
   return (
     <div className="space-y-8 p-4">
       <h1 className="text-2xl font-semibold">{t.name}</h1>
-      {Array.from({ length: t.numberOfGroups }, (_, i) => i + 1).map((groupNo) => {
-        const rows = sortStandings(groups[groupNo] || []);
-        return (
-          <div key={groupNo} className="space-y-2">
-            <h2 className="text-xl font-medium">Group {groupNo}</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[10%]">Rank</TableHead>
-                  <TableHead className="w-[40%]">Player</TableHead>
-                  <TableHead className="w-[10%]">Games</TableHead>
-                  <TableHead className="w-[15%]">Win/Loss</TableHead>
-                  <TableHead className="w-[10%]">Diff</TableHead>
-                  <TableHead className="w-[15%]">Points</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.length === 0 ? (
+      {Array.from({ length: t.numberOfGroups }, (_, i) => i + 1).map(
+        (groupNo) => {
+          const rows = sortStandings(groups[groupNo] || []);
+          return (
+            <div key={groupNo} className="space-y-2">
+              <h2 className="text-xl font-medium">Group {groupNo}</h2>
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
-                      No players in this group.
-                    </TableCell>
+                    <TableHead className="w-[10%]">Rank</TableHead>
+                    <TableHead className="w-[40%]">Player</TableHead>
+                    <TableHead className="w-[10%]">Games</TableHead>
+                    <TableHead className="w-[15%]">Win/Loss</TableHead>
+                    <TableHead className="w-[10%]">Diff</TableHead>
+                    <TableHead className="w-[15%]">Points</TableHead>
                   </TableRow>
-                ) : (
-                  rows.map(({ id, rank, player, games, wins, losses, diff, points }, idx) => (
-                    <TableRow key={id}>
-                      <TableCell>{rank ?? idx + 1}</TableCell>
-                      <TableCell className="font-medium">{player.name}</TableCell>
-                      <TableCell>{games}</TableCell>
-                      <TableCell>
-                        {wins}:{losses}
+                </TableHeader>
+                <TableBody>
+                  {rows.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center text-muted-foreground"
+                      >
+                        No players in this group.
                       </TableCell>
-                      <TableCell>{diff}</TableCell>
-                      <TableCell>{points}</TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        );
-      })}
+                  ) : (
+                    rows.map(
+                      (
+                        { id, rank, player, games, wins, losses, diff, points },
+                        idx,
+                      ) => (
+                        <TableRow key={id}>
+                          <TableCell>{rank ?? idx + 1}</TableCell>
+                          <TableCell className="font-medium">
+                            {player.name}
+                          </TableCell>
+                          <TableCell>{games}</TableCell>
+                          <TableCell>
+                            {wins}:{losses}
+                          </TableCell>
+                          <TableCell>{diff}</TableCell>
+                          <TableCell>{points}</TableCell>
+                        </TableRow>
+                      ),
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          );
+        },
+      )}
     </div>
   );
 }

@@ -7,7 +7,14 @@ import reactHooks from "eslint-plugin-react-hooks";
 import { fixupConfigRules } from "@eslint/compat";
 
 export default [
-  { ignores: [".next/**", "node_modules/**", "coverage/**", "*.config.{js,mjs,cjs}"] },
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "coverage/**",
+      "*.config.{js,mjs,cjs}",
+    ],
+  },
   { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
   { languageOptions: { globals: globals.node } },
   pluginJs.configs.recommended,
@@ -29,7 +36,10 @@ export default [
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
     },
   },
   reactHooks.configs.flat.recommended,

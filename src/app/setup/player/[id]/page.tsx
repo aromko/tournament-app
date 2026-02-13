@@ -14,7 +14,9 @@ export default function PlayerPage() {
   const tournamentId = NextNavigation.useParams().id as string;
   const playersParam = NextNavigation.useSearchParams().get("p");
 
-  const [players, setPlayers] = useState(() => playersParam ? parseInt(playersParam) : 0);
+  const [players, setPlayers] = useState(() =>
+    playersParam ? parseInt(playersParam) : 0,
+  );
   const [prefill, setPrefill] = useState<string[]>([]);
 
   const [error, formAction, isPending] = React.useActionState(
@@ -28,7 +30,9 @@ export default function PlayerPage() {
     let ignore = false;
     async function loadPlayers() {
       try {
-        const res = await fetch(`/api/tournament/${tournamentId}/players`, { cache: "no-store" });
+        const res = await fetch(`/api/tournament/${tournamentId}/players`, {
+          cache: "no-store",
+        });
         if (!res.ok) return;
         const data = (await res.json()) as { id: number; name: string }[];
         if (ignore) return;
@@ -77,13 +81,21 @@ export default function PlayerPage() {
         >
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
             {renderPlayerComponent.map((_, index) => (
-              <Player index={index.toString()} key={index} defaultValue={prefill[index]}
+              <Player
+                index={index.toString()}
+                key={index}
+                defaultValue={prefill[index]}
               />
             ))}
           </div>
         </form>
         <div className="w-full md:col-span-full grid grid-cols-8 gap-3">
-          <Button asChild type="button" variant="outline" className="w-full col-span-2 col-end-7">
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            className="w-full col-span-2 col-end-7"
+          >
             <Link href={`/setup?id=${tournamentId}&p=${players}`}>Cancel</Link>
           </Button>
           <Button

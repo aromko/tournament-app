@@ -3,7 +3,13 @@
 import { Suspense, useActionState, useEffect, useState } from "react";
 import { createTournament } from "@/app/setup/action";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
@@ -98,7 +104,11 @@ function SetupPageInner() {
 
         <div className="space-y-2">
           <Label htmlFor="eliminationType">Elimination Type</Label>
-          <Select name="eliminationType" value={eliminationType} onValueChange={setEliminationType}>
+          <Select
+            name="eliminationType"
+            value={eliminationType}
+            onValueChange={setEliminationType}
+          >
             <SelectTrigger aria-describedby="eliminationType-error">
               <SelectValue placeholder="Select elimination type" />
             </SelectTrigger>
@@ -116,7 +126,11 @@ function SetupPageInner() {
 
         <div className="space-y-2">
           <Label htmlFor="numberOfGroups">Number of Groups</Label>
-          <Select name="numberOfGroups" value={numberOfGroups} onValueChange={setNumberOfGroups}>
+          <Select
+            name="numberOfGroups"
+            value={numberOfGroups}
+            onValueChange={setNumberOfGroups}
+          >
             <SelectTrigger aria-describedby="numberOfGroups-error">
               <SelectValue placeholder="Select number of groups" />
             </SelectTrigger>
@@ -133,10 +147,19 @@ function SetupPageInner() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Button asChild type="button" variant="outline" className="w-full md:col-span-1">
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            className="w-full md:col-span-1"
+          >
             <Link href="/">Cancel</Link>
           </Button>
-          <Button type="submit" className="w-full md:col-span-3" aria-disabled={isPending}>
+          <Button
+            type="submit"
+            className="w-full md:col-span-3"
+            aria-disabled={isPending}
+          >
             Next: Add players
           </Button>
         </div>

@@ -6,7 +6,7 @@ import { ContainersState } from "@/hooks/useHandleDragEnd";
 import { Player, UNASSIGNED_ID } from "@/app/setup/teams/[id]/TeamsAssignment";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function parseGroupCount(params: ReturnType<typeof useSearchParams>) {

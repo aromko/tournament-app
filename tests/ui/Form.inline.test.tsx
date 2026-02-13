@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { useForm } from 'react-hook-form'
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { useForm } from "react-hook-form";
 import {
   Form,
   FormField,
@@ -9,17 +9,17 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
-} from '@/components/ui/form'
+} from "@/components/ui/form";
 
 function TestForm() {
-  const form = useForm<{ name: string }>({ defaultValues: { name: '' } })
+  const form = useForm<{ name: string }>({ defaultValues: { name: "" } });
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(() => {})}>
         <FormField
           control={form.control}
           name="name"
-          rules={{ required: 'Required' }}
+          rules={{ required: "Required" }}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -34,23 +34,23 @@ function TestForm() {
         <button type="submit">Submit</button>
       </form>
     </Form>
-  )
+  );
 }
 
-describe('Form UI primitives (inline snapshots)', () => {
-  it('renders without error and wires aria-describedby correctly', () => {
-    const { container } = render(<TestForm />)
-    const input = container.querySelector('input') as HTMLInputElement
-    const label = screen.getByText('Name') as HTMLLabelElement
+describe("Form UI primitives (inline snapshots)", () => {
+  it("renders without error and wires aria-describedby correctly", () => {
+    const { container } = render(<TestForm />);
+    const input = container.querySelector("input") as HTMLInputElement;
+    const label = screen.getByText("Name") as HTMLLabelElement;
 
-    const describedby = input.getAttribute('aria-describedby') ?? ''
+    const describedby = input.getAttribute("aria-describedby") ?? "";
 
     expect({
       hasLabel: !!label,
-      ariaInvalid: input.getAttribute('aria-invalid'),
-      describedByCount: describedby ? describedby.split(' ').length : 0,
-      hasErrorMessageText: /Required/.test(container.textContent || ''),
-      labelHasDestructiveClass: label.className.includes('text-destructive'),
+      ariaInvalid: input.getAttribute("aria-invalid"),
+      describedByCount: describedby ? describedby.split(" ").length : 0,
+      hasErrorMessageText: /Required/.test(container.textContent || ""),
+      labelHasDestructiveClass: label.className.includes("text-destructive"),
     }).toMatchInlineSnapshot(`
 {
   "ariaInvalid": "false",
@@ -59,28 +59,28 @@ describe('Form UI primitives (inline snapshots)', () => {
   "hasLabel": true,
   "labelHasDestructiveClass": false,
 }
-`)
-  })
+`);
+  });
 
-  it('shows error after submit and updates aria attributes', async () => {
-    const { container } = render(<TestForm />)
+  it("shows error after submit and updates aria attributes", async () => {
+    const { container } = render(<TestForm />);
 
-    const submitBtn = await screen.findByText('Submit')
-    submitBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    const submitBtn = await screen.findByText("Submit");
+    submitBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     // Wait for validation message to appear
-    await screen.findByText('Required')
+    await screen.findByText("Required");
 
-    const input = container.querySelector('input') as HTMLInputElement
-    const label = screen.getByText('Name') as HTMLLabelElement
+    const input = container.querySelector("input") as HTMLInputElement;
+    const label = screen.getByText("Name") as HTMLLabelElement;
 
-    const describedby = input.getAttribute('aria-describedby') ?? ''
+    const describedby = input.getAttribute("aria-describedby") ?? "";
 
     expect({
-      ariaInvalid: input.getAttribute('aria-invalid'),
-      describedByCount: describedby ? describedby.split(' ').length : 0,
-      hasErrorMessageText: /Required/.test(container.textContent || ''),
-      labelHasDestructiveClass: label.className.includes('text-destructive'),
+      ariaInvalid: input.getAttribute("aria-invalid"),
+      describedByCount: describedby ? describedby.split(" ").length : 0,
+      hasErrorMessageText: /Required/.test(container.textContent || ""),
+      labelHasDestructiveClass: label.className.includes("text-destructive"),
     }).toMatchInlineSnapshot(`
 {
   "ariaInvalid": "true",
@@ -88,6 +88,6 @@ describe('Form UI primitives (inline snapshots)', () => {
   "hasErrorMessageText": true,
   "labelHasDestructiveClass": true,
 }
-`)
-  })
-})
+`);
+  });
+});

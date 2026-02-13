@@ -23,14 +23,16 @@ export default function StartTournamentMenuItem({ tournamentId }: Props) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.message || `Failed to start (HTTP ${res.status})`);
+        throw new Error(
+          data?.message || `Failed to start (HTTP ${res.status})`,
+        );
       }
       // Navigate to the tournament page
       router.push(`/tournament/${tournamentId}`);
     } catch (e) {
       // Minimal error surface without introducing a toast dependency
       const msg = e instanceof Error ? e.message : String(e);
-       
+
       alert(`Could not start tournament: ${msg}`);
       console.error(e);
     } finally {
