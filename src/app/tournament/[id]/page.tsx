@@ -5,13 +5,10 @@ import {
   sortStandings,
 } from "@/prisma/db/standing";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  ensureMatchesForTournament,
+  getMatchesByTournamentId,
+} from "@/prisma/db/match";
+import TournamentView from "./TournamentView";
 
 export default async function TournamentPage({
   params,
@@ -31,72 +28,34 @@ export default async function TournamentPage({
   }
 
   await ensureStandingsForTournament(tournamentId);
-  const allStandings = await getStandingsByTournamentId(tournamentId);
+  await ensureMatchesForTournament(tournamentId);
 
-  const groups: Record<number, typeof allStandings> = {};
-  for (let g = 1; g <= t.numberOfGroups; g++) groups[g] = [];
+  const allStandings = await getStandingsByTournamentId(tournamentId);
+  const allMatches = await getMatchesByTournamentId(tournamentId);
+
+  const groupStandings: Record<number, typeof allStandings> = {};
+  for (let g = 1; g <= t.numberOfGroups; g++) groupStandings[g] = [];
   for (const row of allStandings) {
     const g = row.groupNumber ?? 1;
-    (groups[g] ||= []).push(row);
+    (groupStandings[g] ||= []).push(row);
+  }
+  for (const g of Object.keys(groupStandings)) {
+    groupStandings[Number(g)] = sortStandings(groupStandings[Number(g)]);
+  }
+
+  const groupMatches: Record<number, typeof allMatches> = {};
+  for (let g = 1; g <= t.numberOfGroups; g++) groupMatches[g] = [];
+  for (const row of allMatches) {
+    (groupMatches[row.groupNumber] ||= []).push(row);
   }
 
   return (
-    <div className="space-y-8 p-4">
-      <h1 className="text-2xl font-semibold">{t.name}</h1>
-      {Array.from({ length: t.numberOfGroups }, (_, i) => i + 1).map(
-        (groupNo) => {
-          const rows = sortStandings(groups[groupNo] || []);
-          return (
-            <div key={groupNo} className="space-y-2">
-              <h2 className="text-xl font-medium">Group {groupNo}</h2>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[10%]">Rank</TableHead>
-                    <TableHead className="w-[40%]">Player</TableHead>
-                    <TableHead className="w-[10%]">Games</TableHead>
-                    <TableHead className="w-[15%]">Win/Loss</TableHead>
-                    <TableHead className="w-[10%]">Diff</TableHead>
-                    <TableHead className="w-[15%]">Points</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="text-center text-muted-foreground"
-                      >
-                        No players in this group.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    rows.map(
-                      (
-                        { id, rank, player, games, wins, losses, diff, points },
-                        idx,
-                      ) => (
-                        <TableRow key={id}>
-                          <TableCell>{rank ?? idx + 1}</TableCell>
-                          <TableCell className="font-medium">
-                            {player.name}
-                          </TableCell>
-                          <TableCell>{games}</TableCell>
-                          <TableCell>
-                            {wins}:{losses}
-                          </TableCell>
-                          <TableCell>{diff}</TableCell>
-                          <TableCell>{points}</TableCell>
-                        </TableRow>
-                      ),
-                    )
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          );
-        },
-      )}
-    </div>
+    <TournamentView
+      tournamentName={t.name}
+      tournamentId={t.id}
+      numberOfGroups={t.numberOfGroups}
+      groupStandings={groupStandings}
+      groupMatches={groupMatches}
+    />
   );
 }

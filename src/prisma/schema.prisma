@@ -23,6 +23,7 @@ model Tournament {
   published       Boolean         @default(false)
   started         Boolean         @default(false)
   standings       GroupStanding[]
+  matches         Match[]
 }
 
 model Player {
@@ -32,6 +33,8 @@ model Player {
   tournamentId  Int
   groupNumber   Int?
   standing      GroupStanding?
+  matchesAsPlayer1  Match[]  @relation("matchPlayer1")
+  matchesAsPlayer2  Match[]  @relation("matchPlayer2")
 }
 
 model GroupStanding {
@@ -48,6 +51,23 @@ model GroupStanding {
   points        Int         @default(0)
   rank          Int?
 
+  @@index([tournamentId, groupNumber])
+}
+
+model Match {
+  id            Int         @id @default(autoincrement())
+  tournament    Tournament  @relation(fields: [tournamentId], references: [id])
+  tournamentId  Int
+  groupNumber   Int
+  player1       Player      @relation("matchPlayer1", fields: [player1Id], references: [id])
+  player1Id     Int
+  player2       Player      @relation("matchPlayer2", fields: [player2Id], references: [id])
+  player2Id     Int
+  score1        Int?
+  score2        Int?
+  played        Boolean     @default(false)
+
+  @@unique([tournamentId, player1Id, player2Id])
   @@index([tournamentId, groupNumber])
 }
 
