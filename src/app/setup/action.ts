@@ -37,7 +37,7 @@ export async function createTournament(
         : 2,
   });
 
-  let tournamentId: number | null = null;
+  let tournamentId: number | null;
 
   if (validation.success) {
     const { name, players, eliminationType, numberOfGroups } = validation.data;
@@ -353,7 +353,7 @@ export async function deleteTournamentPlayer(formData: FormData): Promise<void> 
   try {
     await prisma.player.deleteMany({ where: { id: playerId, tournamentId } });
   } catch (e) {
-    throw new Error(`Failed to delete player: ${e instanceof Error ? e.message : e}`);
+    throw new Error(`Failed to delete player: ${e instanceof Error ? e.message : e}`, { cause: e });
   }
 
   redirect(`/setup/teams/${tournamentId}`);

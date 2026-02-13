@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import nextPlugin from "@next/eslint-plugin-next";
 import reactHooks from "eslint-plugin-react-hooks";
+import { fixupConfigRules } from "@eslint/compat";
 
 export default [
   { ignores: [".next/**", "node_modules/**", "coverage/**", "*.config.{js,mjs,cjs}"] },
@@ -11,7 +12,7 @@ export default [
   { languageOptions: { globals: globals.node } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
+  ...fixupConfigRules(pluginReact.configs.flat.recommended),
   {
     plugins: {
       "@next/next": nextPlugin,
