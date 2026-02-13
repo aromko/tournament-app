@@ -30,7 +30,7 @@ export default function StartTournamentMenuItem({ tournamentId }: Props) {
     } catch (e) {
       // Minimal error surface without introducing a toast dependency
       const msg = e instanceof Error ? e.message : String(e);
-      // eslint-disable-next-line no-alert
+       
       alert(`Could not start tournament: ${msg}`);
       console.error(e);
     } finally {
